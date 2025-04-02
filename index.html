@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bed Waiting Time Analysis</title>
+  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- React dependencies -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  <!-- Recharts for visualization -->
+  <script src="https://unpkg.com/recharts@2.5.0/umd/Recharts.min.js"></script>
+  <!-- PapaParse for CSV parsing -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.0/papaparse.min.js"></script>
+  <!-- Lodash for utility functions -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/4.17.21/lodash.min.js"></script>
+  <!-- Custom styles -->
+  <style>
+    .recharts-wrapper {
+      margin: 0 auto;
+    }
+    .recharts-layer {
+      outline: none;
+    }
+  </style>
+</head>
+<body class="bg-gray-100 min-h-screen">
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-center mb-8">Bed Waiting Time Analysis Dashboard</h1>
+    <div id="app" class="bg-white rounded-lg shadow-lg p-6"></div>
+  </div>
+
+  <!-- Mock file system for local development -->
+  <script>
+    window.fs = {
+      readFile: async function(path, options) {
+        try {
+          const response = await fetch(path);
+          if (!response.ok) {
+            throw new Error(`Failed to fetch ${path}: ${response.status} ${response.statusText}`);
+          }
+          
+          if (options && options.encoding === 'utf8') {
+            return await response.text();
+          } else {
+            return new Uint8Array(await response.arrayBuffer());
+          }
+        } catch (error) {
+          console.error('Error reading file:', error);
+          throw error;
+        }
+      }
+    };
+  </script>
+
+  <!-- App Component Script -->
+  <script type="text/babel" src="app.js"></script>
+  <script type="text/babel">
+    ReactDOM.render(<WaitingTimeDistributions />, document.getElementById('app'));
+  </script>
+</body>
+</html>
