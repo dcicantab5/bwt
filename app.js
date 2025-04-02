@@ -1,14 +1,14 @@
-// Get React and ReactDOM from global scope
+// Extract React hooks and components from global variables
 const { useState, useEffect } = React;
 const { createRoot } = ReactDOM;
 
-// Get Recharts components from global scope
+// Extract Recharts components from global variable
 const {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
   ResponsiveContainer, LineChart, Line
 } = Recharts;
 
-// Main Application Component
+// Main application component
 const App = () => {
   const [data, setData] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -16,35 +16,55 @@ const App = () => {
   const [selectedTab, setSelectedTab] = useState('histogram');
   const [showStatisticalAnalysis, setShowStatisticalAnalysis] = useState(false);
 
+  // Load data on component mount
   useEffect(() => {
-    // Data should be available in window.analysisData
-    if (window.analysisData) {
-      setData(window.analysisData);
-      setLoading(false);
-    } else {
-      setError("Failed to load data. Please check the console for errors.");
-      setLoading(false);
-    }
+    // Check if data is loaded every 100ms
+    const checkDataInterval = setInterval(() => {
+      if (window.visualizationData) {
+        setData(window.visualizationData);
+        setLoading(false);
+        clearInterval(checkDataInterval);
+      }
+    }, 100);
+
+    // Set a timeout to stop checking after 10 seconds
+    const timeout = setTimeout(() => {
+      clearInterval(checkDataInterval);
+      if (!window.visualizationData) {
+        setError("Timeout loading data. Please refresh the page.");
+        setLoading(false);
+      }
+    }, 10000);
+
+    // Clean up on unmount
+    return () => {
+      clearInterval(checkDataInterval);
+      clearTimeout(timeout);
+    };
   }, []);
 
+  // Show loading state
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center">
-          <div className="text-xl font-bold mb-4">Loading Data...</div>
-          <div className="w-12 h-12 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto"></div>
-        </div>
+      <div className="container mx-auto p-8 text-center">
+        <h1 className="text-2xl font-bold mb-4">Loading Visualization...</h1>
+        <div className="spinner"></div>
       </div>
     );
   }
 
-  if (error) {
+  // Show error state
+  if (error || !data) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="text-center text-red-500">
-          <div className="text-xl font-bold mb-4">Error</div>
-          <div>{error}</div>
-        </div>
+      <div className="container mx-auto p-8 text-center">
+        <h1 className="text-2xl text-red-600 font-bold mb-4">Error</h1>
+        <p>{error || "Failed to load visualization data"}</p>
+        <button 
+          onClick={() => location.reload()} 
+          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+        >
+          Reload Page
+        </button>
       </div>
     );
   }
@@ -134,16 +154,6 @@ const App = () => {
   // Render the Box Plot tab
   const renderBoxPlot = () => {
     const { boxPlotData } = data;
-    
-    const CustomizedAxisTick = (props) => {
-      const { x, y, payload } = props;
-      
-      return (
-        <g transform={`translate(${x},${y})`}>
-          <text x={0} y={0} dy={16} textAnchor="middle" fill="#666">{payload.value}</text>
-        </g>
-      );
-    };
     
     return (
       <div className="w-full p-4">
@@ -362,7 +372,10 @@ const App = () => {
   );
 };
 
-// Render the App component
-const rootElement = document.getElementById("root");
-const root = createRoot(rootElement);
-root.render(<App />);
+// Render the App component once DOM is fully loaded
+document.addEventListener('DOMContentLoaded', () => {
+  const rootElement = document.getElementById("root");
+  const root = createRoot(rootElement);
+  root.render(<App />);
+});
+
