@@ -34,8 +34,11 @@ function initializeDashboard(data) {
   // Initialize By Ward Tab
   initializeByWardTab(data.statistics.byWard, data.summary);
   
-  // Initialize Statistical Analysis Tab
-  initializeStatisticalTab(data.statistics.statAnalysis, data.statistics.overall, data.statistics.thresholds);
+  // Initialize tooltips
+  const tooltipTriggerList = [].slice.call(document.querySelectorAll('[data-bs-toggle="tooltip"]'));
+  tooltipTriggerList.map(function(tooltipTriggerEl) {
+    return new bootstrap.Tooltip(tooltipTriggerEl);
+  });
 }
 
 function initializeHistogramTab(histogramData) {
@@ -128,19 +131,28 @@ function createHistogramChart(canvasId, histogramData, type) {
 
 function initializeDensityTab(densityData) {
   // Create density plot
-  createDensityChart('densityChart', densityData);
+  createEnhancedDensityChart('densityChart', densityData);
 }
 
-function createDensityChart(canvasId, densityData) {
+function createEnhancedDensityChart(canvasId, densityData) {
   const ctx = document.getElementById(canvasId).getContext('2d');
+  const chartContainer = document.getElementById('densityChartContainer');
+  const tooltip = document.getElementById('densityTooltip');
+  const verticalLine = document.getElementById('densityVerticalLine');
   
   // Prepare data
   const labels = densityData.map(point => point.duration);
   const data2024 = densityData.map(point => point.density2024);
   const data2025 = densityData.map(point => point.density2025);
   
+  // Create x-axis labels
+  const xAxisLabels = [];
+  for (let i = 0; i <= 92; i += 4) {
+    xAxisLabels.push(`${i}h`);
+  }
+  
   // Create chart
-  new Chart(ctx, {
+  const densityChart = new Chart(ctx, {
     type: 'line',
     data: {
       labels: labels,
@@ -152,6 +164,8 @@ function createDensityChart(canvasId, densityData) {
           backgroundColor: 'rgba(88, 103, 221, 0.1)',
           borderWidth: 2,
           pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: 'rgba(88, 103, 221, 1)',
           tension: 0.4,
           fill: true
         },
@@ -162,6 +176,8 @@ function createDensityChart(canvasId, densityData) {
           backgroundColor: 'rgba(121, 204, 160, 0.1)',
           borderWidth: 2,
           pointRadius: 0,
+          pointHoverRadius: 5,
+          pointHoverBackgroundColor: 'rgba(121, 204, 160, 1)',
           tension: 0.4,
           fill: true
         }
@@ -173,6 +189,7 @@ function createDensityChart(canvasId, densityData) {
       scales: {
         y: {
           beginAtZero: true,
+          max: 80,
           grid: {
             color: 'rgba(0, 0, 0, 0.05)'
           },
@@ -185,20 +202,21 @@ function createDensityChart(canvasId, densityData) {
           grid: {
             color: 'rgba(0, 0, 0, 0.05)'
           },
+          min: 0,
+          max: 5520, // 92 hours in minutes
           title: {
             display: true,
             text: 'Duration (minutes)'
           },
           ticks: {
+            autoSkip: false,
             callback: function(value, index) {
-              // Only show some labels to avoid overcrowding
-              if (index % 4 === 0) {
+              if (index % 60 === 0) { // Show every 4 hours (60 * 4 = 240 minutes)
                 const hours = Math.floor(value / 60);
                 return `${hours}h`;
               }
               return '';
-            },
-            maxRotation: 0
+            }
           }
         }
       },
@@ -212,24 +230,91 @@ function createDensityChart(canvasId, densityData) {
           }
         },
         tooltip: {
-          callbacks: {
-            title: function(tooltipItems) {
-              const duration = tooltipItems[0].parsed.x;
-              const hours = Math.floor(duration / 60);
-              const minutes = duration % 60;
-              return `${hours}h ${minutes}m`;
-            },
-            label: function(context) {
-              const label = context.dataset.label || '';
-              const value = context.parsed.y.toFixed(1);
-              return `${label}: ${value}`;
-            }
-          }
+          enabled: false // Disable the default tooltip
         }
       },
-      interaction: {
-        mode: 'nearest',
-        intersect: false
+      events: ['mousemove', 'mouseout']
+    }
+  });
+  
+  // Add custom tooltip and interaction
+  chartContainer.addEventListener('mousemove', function(event) {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    const xValue = densityChart.scales.x.getValueForPixel(x);
+    const hourValue = Math.floor(xValue / 60);
+    const minuteValue = Math.round(xValue % 60);
+    
+    // Find closest data point
+    let closestIndex = 0;
+    let minDistance = Math.abs(densityData[0].duration - xValue);
+    
+    for (let i = 1; i < densityData.length; i++) {
+      const distance = Math.abs(densityData[i].duration - xValue);
+      if (distance < minDistance) {
+        minDistance = distance;
+        closestIndex = i;
+      }
+    }
+    
+    const value2024 = densityData[closestIndex].density2024.toFixed(2);
+    const value2025 = densityData[closestIndex].density2025.toFixed(2);
+    
+    // Update tooltip
+    tooltip.style.display = 'block';
+    tooltip.style.left = `${x + 10}px`;
+    tooltip.style.top = `${y - 50}px`;
+    tooltip.innerHTML = `
+      <div style="font-weight: bold;">${hourValue}h ${minuteValue}m</div>
+      <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${value2024}</div>
+      <div style="color: rgba(121, 204, 160, 1);">Feb 2025: ${value2025}</div>
+    `;
+    
+    // Show vertical line
+    verticalLine.style.display = 'block';
+    verticalLine.style.left = `${x}px`;
+  });
+  
+  chartContainer.addEventListener('mouseout', function() {
+    tooltip.style.display = 'none';
+    verticalLine.style.display = 'none';
+  });
+  
+  // Add dataset points for 24h mark
+  const densityCanvas = document.getElementById(canvasId);
+  
+  // After the chart is rendered, draw circular points at the 24h mark
+  densityCanvas.addEventListener('click', function(event) {
+    const rect = densityCanvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    
+    const xValue = densityChart.scales.x.getValueForPixel(x);
+    
+    // If we're close to the 24h mark (1440 minutes), show the tooltip with 24h data
+    if (Math.abs(xValue - 1440) < 120) {
+      // Find the closest data point to 24h
+      const index24h = densityData.findIndex(d => d.duration >= 1440);
+      
+      if (index24h !== -1) {
+        const value2024 = densityData[index24h].density2024.toFixed(2);
+        const value2025 = densityData[index24h].density2025.toFixed(2);
+        
+        // Update tooltip
+        tooltip.style.display = 'block';
+        tooltip.style.left = `${densityChart.scales.x.getPixelForValue(1440) + 10}px`;
+        tooltip.style.top = `${densityChart.scales.y.getPixelForValue((value2024 + value2025) / 2) - 50}px`;
+        tooltip.innerHTML = `
+          <div style="font-weight: bold;">24h 0m</div>
+          <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${value2024}</div>
+          <div style="color: rgba(121, 204, 160, 1);">Feb 2025: ${value2025}</div>
+        `;
+        
+        // Show vertical line
+        verticalLine.style.display = 'block';
+        verticalLine.style.left = `${densityChart.scales.x.getPixelForValue(1440)}px`;
       }
     }
   });
@@ -242,6 +327,7 @@ function initializeBoxPlotTab(overallData) {
   
   // Create key statistics table
   const keyStatsTable = document.getElementById('keyStatsTable');
+  keyStatsTable.innerHTML = '';
   
   // Add rows to the table
   addStatRow(keyStatsTable, 'Median', overallData.stats2024.median, overallData.stats2025.median, overallData.comparison.medianChange, overallData.comparison.medianChangePercent);
@@ -329,33 +415,24 @@ function createBoxPlot(containerId, stats) {
   q3ToMaxLine.style.width = (maxPos - q3Pos) + '%';
   container.appendChild(q3ToMaxLine);
   
-  // Add simple label markers at top of plot
+  // Add labels with spacing
   const labels = [
-    { pos: minPos, text: 'Min: ' + stats.min },
-    { pos: q1Pos, text: 'Q1: ' + stats.q1 },
-    { pos: medianPos, text: 'Median: ' + stats.median },
-    { pos: q3Pos, text: 'Q3: ' + stats.q3 },
-    { pos: maxPos, text: 'Max: ' + (stats.max > maxVal ? maxVal + '+' : stats.max) }
+    { pos: minPos, text: `Min: ${stats.min}` },
+    { pos: q1Pos, text: `Q1: ${stats.q1}` },
+    { pos: medianPos, text: `Median: ${stats.median}` },
+    { pos: q3Pos, text: `Q3: ${stats.q3}` },
+    { pos: maxPos, text: `Max: ${stats.max > maxVal ? maxVal + '+' : stats.max}` }
   ];
   
   // Add mean text beneath
   const meanText = document.createElement('div');
   meanText.style.position = 'absolute';
-  meanText.style.left = '50%';
   meanText.style.top = '110px';
+  meanText.style.left = '50%';
   meanText.style.transform = 'translateX(-50%)';
-  meanText.style.width = 'auto';
   meanText.style.textAlign = 'center';
   meanText.innerHTML = `<span style="display: inline-flex; align-items: center;"><span style="display: inline-block; width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; margin-right: 5px;"></span>Mean: ${stats.mean}</span>`;
   container.appendChild(meanText);
-  
-  // Initialize tooltips
-  setTimeout(() => {
-    const tooltipTriggerList = [].slice.call(container.querySelectorAll('[data-bs-toggle="tooltip"]'));
-    tooltipTriggerList.map(function(tooltipTriggerEl) {
-      return new bootstrap.Tooltip(tooltipTriggerEl);
-    });
-  }, 100);
 }
 
 function addStatRow(table, label, value2024, value2025, change, percentChange) {
@@ -509,53 +586,4 @@ function createWardCasesChart(canvasId, summaryData) {
       }
     }
   });
-}
-
-function initializeStatisticalTab(statData, overallData, thresholdData) {
-  // Populate Bootstrap table
-  const bootstrapTable = document.getElementById('bootstrapTable');
-  
-  addSimpleRow(bootstrapTable, 'Observed difference (2025 - 2024)', `494 minutes`);
-  addSimpleRow(bootstrapTable, '95% Confidence Interval', `[389, 631]`);
-  
-  // Populate 4-hour standard table
-  const fourHourTable = document.getElementById('fourHourTable');
-  
-  addSimpleRow(fourHourTable, 'Chi-square statistic', `126.7145`);
-  addSimpleRow(fourHourTable, 'p-value', `< 0.0001`);
-  addSimpleRow(fourHourTable, 'Odds ratio', `3.56`);
-  addSimpleRow(fourHourTable, '95% CI for odds ratio', `[2.84, 4.46]`);
-  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2024', `45.5%`);
-  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2025', `19%`);
-  
-  // Populate 6-hour standard table
-  const sixHourTable = document.getElementById('sixHourTable');
-  
-  addSimpleRow(sixHourTable, 'Chi-square statistic', `144.7049`);
-  addSimpleRow(sixHourTable, 'p-value', `< 0.0001`);
-  addSimpleRow(sixHourTable, 'Odds ratio', `3.50`);
-  addSimpleRow(sixHourTable, '95% CI for odds ratio', `[2.85, 4.31]`);
-  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2024', `61.2%`);
-  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2025', `31.0%`);
-  
-  // Populate extended waits table
-  const extendedWaitsTable = document.getElementById('extendedWaitsTable');
-  
-  addSimpleRow(extendedWaitsTable, 'Chi-square statistic', `135.7921`);
-  addSimpleRow(extendedWaitsTable, 'p-value', `< 0.0001`);
-  addSimpleRow(extendedWaitsTable, 'Odds ratio', `7.12`);
-  addSimpleRow(extendedWaitsTable, '95% CI for odds ratio', `[4.89, 10.37]`);
-  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2024', `4.4%`);
-  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2025', `24.6%`);
-}
-
-function addSimpleRow(table, label, value) {
-  const row = document.createElement('tr');
-  
-  row.innerHTML = `
-    <td class="fw-bold">${label}</td>
-    <td>${value}</td>
-  `;
-  
-  table.appendChild(row);
 }
