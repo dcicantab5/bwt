@@ -146,12 +146,6 @@ function createDensityChart(canvasId, densityData) {
   const data2024 = densityData.map(point => point.density2024);
   const data2025 = densityData.map(point => point.density2025);
   
-  // Create x-axis labels at 4-hour intervals (0h, 4h, 8h, etc.)
-  const xAxisLabels = [];
-  for (let i = 0; i <= 92; i += 4) {
-    xAxisLabels.push(`${i}h`);
-  }
-  
   // Create chart
   const densityChart = new Chart(ctx, {
     type: 'line',
@@ -230,55 +224,51 @@ function createDensityChart(canvasId, densityData) {
     }
   });
   
-  // Add data points for 24h (1440 minutes) and 26h (1560 minutes)
-  const point24h2024 = {
-    x: 1440,
-    y: 3.51
-  };
-  
-  const point24h2025 = {
-    x: 1440,
-    y: 13.14
-  };
-  
   // Add interactivity
   chartContainer.addEventListener('mousemove', function(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
-    const xValue = densityChart.scales.x.getValueForPixel(x);
-    const hourValue = Math.floor(xValue / 60);
-    const minuteValue = Math.round(xValue % 60);
+    // Check if the mouse is within the chart area
+    if (y < 0 || y > canvas.height) {
+      tooltip.style.display = 'none';
+      verticalLine.style.display = 'none';
+      return;
+    }
     
-    // Find closest data point
+    const xValue = densityChart.scales.x.getValueForPixel(x);
+    
+    // Only show tooltip at 2-hour intervals (rounded to nearest 2-hour mark)
+    const hourValue = Math.floor(xValue / 60);
+    const rounded2Hours = Math.round(hourValue / 2) * 2;
+    const rounded2HoursMinutes = rounded2Hours * 60;
+    
+    // Find closest data point to the rounded 2-hour interval
     let closestIndex = 0;
-    let minDistance = Math.abs(densityData[0].duration - xValue);
+    let minDistance = Math.abs(densityData[0].duration - rounded2HoursMinutes);
     
     for (let i = 1; i < densityData.length; i++) {
-      const distance = Math.abs(densityData[i].duration - xValue);
+      const distance = Math.abs(densityData[i].duration - rounded2HoursMinutes);
       if (distance < minDistance) {
         minDistance = distance;
         closestIndex = i;
       }
     }
     
-    const value2024 = densityData[closestIndex].density2024.toFixed(2);
-    const value2025 = densityData[closestIndex].density2025.toFixed(2);
-    
     // Update tooltip
     tooltip.style.display = 'block';
     tooltip.style.left = (x + 10) + 'px';
     tooltip.style.top = (y - 50) + 'px';
     tooltip.innerHTML = `
-      <div style="font-weight: bold;">${hourValue}h ${minuteValue}m</div>
-      <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${value2024}</div>
-      <div style="color: rgba(121, 204, 160, 1);">Feb 2025: ${value2025}</div>
+      <div style="font-weight: bold;">${rounded2Hours}h 0m</div>
+      <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${densityData[closestIndex].density2024.toFixed(2)}</div>
+      <div style="color: rgba(121, 204, 160, 1);">Feb 2025: ${densityData[closestIndex].density2025.toFixed(2)}</div>
     `;
     
-    // Show vertical line
+    // Show vertical line only within chart area
     verticalLine.style.display = 'block';
-    verticalLine.style.height = (canvas.height) + 'px';
+    verticalLine.style.height = canvas.height + 'px';
     verticalLine.style.left = x + 'px';
     verticalLine.style.top = '0';
   });
@@ -289,20 +279,20 @@ function createDensityChart(canvasId, densityData) {
   });
   
   // Special point at 24h
-  chartContainer.addEventListener('click', function(event) {
+  canvas.addEventListener('click', function(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
     
     const xValue = densityChart.scales.x.getValueForPixel(x);
     
     // If near 24h mark (1440 minutes), show special tooltip
     if (Math.abs(xValue - 1440) < 120) {
       const x24h = densityChart.scales.x.getPixelForValue(1440);
-      const y24h = canvas.height - 200; // Position tooltip in a good spot
       
       tooltip.style.display = 'block';
       tooltip.style.left = (x24h + 10) + 'px';
-      tooltip.style.top = (y24h) + 'px';
+      tooltip.style.top = (y - 50) + 'px';
       tooltip.innerHTML = `
         <div style="font-weight: bold;">24h 0m</div>
         <div style="color: rgba(88, 103, 221, 1);">Feb 2024: 3.51</div>
@@ -310,7 +300,7 @@ function createDensityChart(canvasId, densityData) {
       `;
       
       verticalLine.style.display = 'block';
-      verticalLine.style.height = (canvas.height) + 'px';
+      verticalLine.style.height = canvas.height + 'px';
       verticalLine.style.left = x24h + 'px';
       verticalLine.style.top = '0';
     }
