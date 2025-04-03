@@ -131,11 +131,12 @@ function createHistogramChart(canvasId, histogramData, type) {
 
 function initializeDensityTab(densityData) {
   // Create density plot
-  createEnhancedDensityChart('densityChart', densityData);
+  createDensityChart('densityChart', densityData);
 }
 
-function createEnhancedDensityChart(canvasId, densityData) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
+function createDensityChart(canvasId, densityData) {
+  const canvas = document.getElementById(canvasId);
+  const ctx = canvas.getContext('2d');
   const chartContainer = document.getElementById('densityChartContainer');
   const tooltip = document.getElementById('densityTooltip');
   const verticalLine = document.getElementById('densityVerticalLine');
@@ -145,7 +146,7 @@ function createEnhancedDensityChart(canvasId, densityData) {
   const data2024 = densityData.map(point => point.density2024);
   const data2025 = densityData.map(point => point.density2025);
   
-  // Create x-axis labels
+  // Create x-axis labels at 4-hour intervals (0h, 4h, 8h, etc.)
   const xAxisLabels = [];
   for (let i = 0; i <= 92; i += 4) {
     xAxisLabels.push(`${i}h`);
@@ -164,8 +165,6 @@ function createEnhancedDensityChart(canvasId, densityData) {
           backgroundColor: 'rgba(88, 103, 221, 0.1)',
           borderWidth: 2,
           pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: 'rgba(88, 103, 221, 1)',
           tension: 0.4,
           fill: true
         },
@@ -176,8 +175,6 @@ function createEnhancedDensityChart(canvasId, densityData) {
           backgroundColor: 'rgba(121, 204, 160, 0.1)',
           borderWidth: 2,
           pointRadius: 0,
-          pointHoverRadius: 5,
-          pointHoverBackgroundColor: 'rgba(121, 204, 160, 1)',
           tension: 0.4,
           fill: true
         }
@@ -199,23 +196,20 @@ function createEnhancedDensityChart(canvasId, densityData) {
           }
         },
         x: {
+          type: 'linear',
+          min: 0,
+          max: 5520, // 92 hours in minutes
           grid: {
             color: 'rgba(0, 0, 0, 0.05)'
           },
-          min: 0,
-          max: 5520, // 92 hours in minutes
           title: {
             display: true,
             text: 'Duration (minutes)'
           },
           ticks: {
-            autoSkip: false,
-            callback: function(value, index) {
-              if (index % 60 === 0) { // Show every 4 hours (60 * 4 = 240 minutes)
-                const hours = Math.floor(value / 60);
-                return `${hours}h`;
-              }
-              return '';
+            stepSize: 240, // 4 hours
+            callback: function(value) {
+              return `${Math.floor(value / 60)}h`;
             }
           }
         }
@@ -232,12 +226,22 @@ function createEnhancedDensityChart(canvasId, densityData) {
         tooltip: {
           enabled: false // Disable the default tooltip
         }
-      },
-      events: ['mousemove', 'mouseout']
+      }
     }
   });
   
-  // Add custom tooltip and interaction
+  // Add data points for 24h (1440 minutes) and 26h (1560 minutes)
+  const point24h2024 = {
+    x: 1440,
+    y: 3.51
+  };
+  
+  const point24h2025 = {
+    x: 1440,
+    y: 13.14
+  };
+  
+  // Add interactivity
   chartContainer.addEventListener('mousemove', function(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
@@ -264,8 +268,8 @@ function createEnhancedDensityChart(canvasId, densityData) {
     
     // Update tooltip
     tooltip.style.display = 'block';
-    tooltip.style.left = `${x + 10}px`;
-    tooltip.style.top = `${y - 50}px`;
+    tooltip.style.left = (x + 10) + 'px';
+    tooltip.style.top = (y - 50) + 'px';
     tooltip.innerHTML = `
       <div style="font-weight: bold;">${hourValue}h ${minuteValue}m</div>
       <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${value2024}</div>
@@ -274,7 +278,9 @@ function createEnhancedDensityChart(canvasId, densityData) {
     
     // Show vertical line
     verticalLine.style.display = 'block';
-    verticalLine.style.left = `${x}px`;
+    verticalLine.style.height = (canvas.height) + 'px';
+    verticalLine.style.left = x + 'px';
+    verticalLine.style.top = '0';
   });
   
   chartContainer.addEventListener('mouseout', function() {
@@ -282,40 +288,31 @@ function createEnhancedDensityChart(canvasId, densityData) {
     verticalLine.style.display = 'none';
   });
   
-  // Add dataset points for 24h mark
-  const densityCanvas = document.getElementById(canvasId);
-  
-  // After the chart is rendered, draw circular points at the 24h mark
-  densityCanvas.addEventListener('click', function(event) {
-    const rect = densityCanvas.getBoundingClientRect();
+  // Special point at 24h
+  chartContainer.addEventListener('click', function(event) {
+    const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
     
     const xValue = densityChart.scales.x.getValueForPixel(x);
     
-    // If we're close to the 24h mark (1440 minutes), show the tooltip with 24h data
+    // If near 24h mark (1440 minutes), show special tooltip
     if (Math.abs(xValue - 1440) < 120) {
-      // Find the closest data point to 24h
-      const index24h = densityData.findIndex(d => d.duration >= 1440);
+      const x24h = densityChart.scales.x.getPixelForValue(1440);
+      const y24h = canvas.height - 200; // Position tooltip in a good spot
       
-      if (index24h !== -1) {
-        const value2024 = densityData[index24h].density2024.toFixed(2);
-        const value2025 = densityData[index24h].density2025.toFixed(2);
-        
-        // Update tooltip
-        tooltip.style.display = 'block';
-        tooltip.style.left = `${densityChart.scales.x.getPixelForValue(1440) + 10}px`;
-        tooltip.style.top = `${densityChart.scales.y.getPixelForValue((value2024 + value2025) / 2) - 50}px`;
-        tooltip.innerHTML = `
-          <div style="font-weight: bold;">24h 0m</div>
-          <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${value2024}</div>
-          <div style="color: rgba(121, 204, 160, 1);">Feb 2025: ${value2025}</div>
-        `;
-        
-        // Show vertical line
-        verticalLine.style.display = 'block';
-        verticalLine.style.left = `${densityChart.scales.x.getPixelForValue(1440)}px`;
-      }
+      tooltip.style.display = 'block';
+      tooltip.style.left = (x24h + 10) + 'px';
+      tooltip.style.top = (y24h) + 'px';
+      tooltip.innerHTML = `
+        <div style="font-weight: bold;">24h 0m</div>
+        <div style="color: rgba(88, 103, 221, 1);">Feb 2024: 3.51</div>
+        <div style="color: rgba(121, 204, 160, 1);">Feb 2025: 13.14</div>
+      `;
+      
+      verticalLine.style.display = 'block';
+      verticalLine.style.height = (canvas.height) + 'px';
+      verticalLine.style.left = x24h + 'px';
+      verticalLine.style.top = '0';
     }
   });
 }
