@@ -1,462 +1,574 @@
-import React, { useState, useEffect } from 'react';
-// Use window.Recharts components for GitHub Pages
-const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, LineChart, Line, ComposedChart, Area, ScatterChart, Scatter } = window.Recharts;
-
-const WaitingTimeDistributions = () => {
-  const [data, setData] = useState({});
-  const [histogramData, setHistogramData] = useState([]);
-  const [densityData, setDensityData] = useState([]);
-  const [boxPlotData, setBoxPlotData] = useState([]);
-  const [wardData, setWardData] = useState({});
-  const [selectedTab, setSelectedTab] = useState('histogram');
-  const [showStatisticalAnalysis, setShowStatisticalAnalysis] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        // Load pre-processed data from data.json
-        const response = await fetch('./data.json');
-        const jsonData = await response.json();
-        
-        // Set the data for each visualization
-        setHistogramData(jsonData.histogramData);
-        setDensityData(jsonData.densityData);
-        setBoxPlotData(jsonData.boxPlotData);
-        setWardData(jsonData.wardData);
-        setData(jsonData);
-        
-        setIsLoading(false);
-      } catch (error) {
-        console.error('Error loading data:', error);
-        setIsLoading(false);
+// Main application script for Bed Waiting Time Analysis Dashboard
+document.addEventListener('DOMContentLoaded', function() {
+  // Load data
+  fetch('data.json')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('Network response was not ok ' + response.statusText);
       }
-    };
-
-    fetchData();
-  }, []);
-
-  const renderHistogram = () => {
-    return (
-      <div className="w-full p-4">
-        <h3 className="text-lg font-medium mb-2">Waiting Time Distribution (% of Cases)</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart
-            data={histogramData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="bin" />
-            <YAxis label={{ value: 'Percentage of Cases (%)', angle: -90, position: 'insideLeft' }} />
-            <Tooltip 
-              formatter={(value, name) => {
-                if (name === "percent2024") return [`${value}%`, "Feb 2024"];
-                if (name === "percent2025") return [`${value}%`, "Feb 2025"];
-                return [value, name];
-              }}
-            />
-            <Legend />
-            <Bar dataKey="percent2024" name="Feb 2024" fill="#8884d8" />
-            <Bar dataKey="percent2025" name="Feb 2025" fill="#82ca9d" />
-          </BarChart>
-        </ResponsiveContainer>
-        
-        <div className="mt-8">
-          <h3 className="text-lg font-medium mb-2">Waiting Time Distribution (Number of Cases)</h3>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={histogramData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="bin" />
-              <YAxis label={{ value: 'Number of Cases', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count2024" name="Feb 2024" fill="#8884d8" />
-              <Bar dataKey="count2025" name="Feb 2025" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    );
-  };
-
-  const renderDensityPlot = () => {
-    return (
-      <div className="w-full p-4">
-        <h3 className="text-lg font-medium mb-2">Density Distribution of Waiting Times</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart
-            data={densityData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="duration" 
-              label={{ value: 'Duration (minutes)', position: 'insideBottom', offset: -5 }} 
-              domain={[0, 5000]}
-              tickFormatter={(value) => `${Math.round(value/60)}h`}
-            />
-            <YAxis label={{ value: 'Density', angle: -90, position: 'insideLeft' }} />
-            <Tooltip 
-              formatter={(value, name) => [value.toFixed(2), name]}
-              labelFormatter={(value) => `${Math.floor(value/60)}h ${value%60}m`}
-            />
-            <Legend />
-            <Line type="monotone" dataKey="density2024" name="Feb 2024" stroke="#8884d8" dot={false} />
-            <Line type="monotone" dataKey="density2025" name="Feb 2025" stroke="#82ca9d" dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  };
-
-  const renderBoxPlot = () => {
-    return (
-      <div className="w-full p-4">
-        <h3 className="text-lg font-medium mb-2">Box Plot Comparison</h3>
-        <div className="flex flex-wrap">
-          {boxPlotData.map((item, index) => (
-            <div key={index} className="w-full md:w-1/2 p-4">
-              <h4 className="text-center mb-2 font-medium">February {item.year}</h4>
-              <div className="bg-gray-100 p-4 rounded-lg">
-                <div className="flex justify-between text-sm text-gray-600 mb-1">
-                  <span>Min: {item.min}</span>
-                  <span>Q1: {item.q1}</span>
-                  <span>Median: {item.median}</span>
-                  <span>Q3: {item.q3}</span>
-                  <span>Max: {Math.min(item.max, 5000)}</span>
-                </div>
-                <div className="h-20 relative">
-                  <div className="absolute top-8 left-0 right-0 h-4 bg-gray-300" />
-                  
-                  {/* Min line */}
-                  <div className="absolute top-4 bg-gray-700 w-1 h-12" style={{ 
-                    left: `${(item.min / 5000) * 100}%` 
-                  }} />
-                  
-                  {/* Box for Q1 to Q3 */}
-                  <div className="absolute top-6 h-8 bg-blue-500" style={{ 
-                    left: `${(item.q1 / 5000) * 100}%`,
-                    width: `${((item.q3 - item.q1) / 5000) * 100}%`
-                  }} />
-                  
-                  {/* Median line */}
-                  <div className="absolute top-4 bg-white w-1 h-12 z-10" style={{ 
-                    left: `${(item.median / 5000) * 100}%` 
-                  }} />
-                  
-                  {/* Mean marker (circle) */}
-                  <div className="absolute top-8 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full z-20" style={{ 
-                    left: `${(item.mean / 5000) * 100}%` 
-                  }} />
-                  
-                  {/* Max line (capped at 5000 for display) */}
-                  <div className="absolute top-4 bg-gray-700 w-1 h-12" style={{ 
-                    left: `${(Math.min(item.max, 5000) / 5000) * 100}%` 
-                  }} />
-                  
-                  {/* Line from min to Q1 */}
-                  <div className="absolute top-10 h-0.5 bg-gray-700" style={{ 
-                    left: `${(item.min / 5000) * 100}%`,
-                    width: `${((item.q1 - item.min) / 5000) * 100}%`
-                  }} />
-                  
-                  {/* Line from Q3 to max */}
-                  <div className="absolute top-10 h-0.5 bg-gray-700" style={{ 
-                    left: `${(item.q3 / 5000) * 100}%`,
-                    width: `${((Math.min(item.max, 5000) - item.q3) / 5000) * 100}%`
-                  }} />
-                </div>
-                <div className="mt-2 text-center text-sm">
-                  <span className="inline-flex items-center">
-                    <span className="w-3 h-3 bg-red-500 rounded-full inline-block mr-1"></span>
-                    Mean: {item.mean.toFixed(0)}
-                  </span>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
-        
-        <div className="mt-8">
-          <h3 className="text-lg font-medium mb-4">Key Statistics Comparison</h3>
-          <div className="overflow-x-auto">
-            <table className="min-w-full bg-white border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="py-2 px-4 border">Statistic</th>
-                  <th className="py-2 px-4 border">Feb 2024</th>
-                  <th className="py-2 px-4 border">Feb 2025</th>
-                  <th className="py-2 px-4 border">Change</th>
-                  <th className="py-2 px-4 border">% Change</th>
-                </tr>
-              </thead>
-              <tbody>
-                {boxPlotData.length === 2 && (
-                  <>
-                    <tr>
-                      <td className="py-2 px-4 border font-medium">Median</td>
-                      <td className="py-2 px-4 border">{boxPlotData[0].median}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].median}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].median - boxPlotData[0].median}</td>
-                      <td className="py-2 px-4 border">{((boxPlotData[1].median - boxPlotData[0].median) / boxPlotData[0].median * 100).toFixed(1)}%</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 border font-medium">Mean</td>
-                      <td className="py-2 px-4 border">{boxPlotData[0].mean.toFixed(1)}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].mean.toFixed(1)}</td>
-                      <td className="py-2 px-4 border">{(boxPlotData[1].mean - boxPlotData[0].mean).toFixed(1)}</td>
-                      <td className="py-2 px-4 border">{((boxPlotData[1].mean - boxPlotData[0].mean) / boxPlotData[0].mean * 100).toFixed(1)}%</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 border font-medium">Q1 (25th percentile)</td>
-                      <td className="py-2 px-4 border">{boxPlotData[0].q1}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].q1}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].q1 - boxPlotData[0].q1}</td>
-                      <td className="py-2 px-4 border">{((boxPlotData[1].q1 - boxPlotData[0].q1) / boxPlotData[0].q1 * 100).toFixed(1)}%</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 border font-medium">Q3 (75th percentile)</td>
-                      <td className="py-2 px-4 border">{boxPlotData[0].q3}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].q3}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].q3 - boxPlotData[0].q3}</td>
-                      <td className="py-2 px-4 border">{((boxPlotData[1].q3 - boxPlotData[0].q3) / boxPlotData[0].q3 * 100).toFixed(1)}%</td>
-                    </tr>
-                    <tr>
-                      <td className="py-2 px-4 border font-medium">IQR (Q3-Q1)</td>
-                      <td className="py-2 px-4 border">{boxPlotData[0].q3 - boxPlotData[0].q1}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].q3 - boxPlotData[1].q1}</td>
-                      <td className="py-2 px-4 border">{(boxPlotData[1].q3 - boxPlotData[1].q1) - (boxPlotData[0].q3 - boxPlotData[0].q1)}</td>
-                      <td className="py-2 px-4 border">{(((boxPlotData[1].q3 - boxPlotData[1].q1) - (boxPlotData[0].q3 - boxPlotData[0].q1)) / (boxPlotData[0].q3 - boxPlotData[0].q1) * 100).toFixed(1)}%</td>
-                    </tr>
-                  </>
-                )}
-              </tbody>
-            </table>
-          </div>
-        </div>
-      </div>
-    );
-  };
-
-  const renderWardComparison = () => {
-    // Create data for bar chart comparison
-    const wardChartData = Object.keys(wardData).map(ward => {
-      const data = wardData[ward];
-      return {
-        ward,
-        mean2024: data.stats2024 ? data.stats2024.mean : 0,
-        mean2025: data.stats2025 ? data.stats2025.mean : 0,
-        median2024: data.stats2024 ? data.stats2024.median : 0,
-        median2025: data.stats2025 ? data.stats2025.median : 0,
-        count2024: data.stats2024 ? data.stats2024.count : 0,
-        count2025: data.stats2025 ? data.stats2025.count : 0
-      };
+      return response.json();
+    })
+    .then(data => {
+      // Initialize the dashboard with the data
+      initializeDashboard(data);
+      // Hide loading spinner
+      document.getElementById('loadingSpinner').style.display = 'none';
+    })
+    .catch(error => {
+      console.error('Error loading data:', error);
+      alert('Error loading data. Please check console for details.');
+      document.getElementById('loadingSpinner').style.display = 'none';
     });
+});
+
+function initializeDashboard(data) {
+  // Set metadata and update footer
+  displayMetadata(data.metadata);
+  
+  // Initialize Overview Tab
+  initializeOverviewTab(data);
+  
+  // Initialize Histogram Tab
+  initializeHistogramTab(data.statistics.histogram);
+  
+  // Initialize Wards Tab
+  initializeWardsTab(data.statistics.byWard, data.summary);
+  
+  // Initialize Threshold Tab
+  initializeThresholdTab(data.statistics.thresholds);
+  
+  // Initialize Findings Tab
+  initializeFindingsTab(data.qualityImprovement);
+}
+
+function displayMetadata(metadata) {
+  // Format and display the generation date
+  const date = new Date(metadata.generatedDate);
+  const formattedDate = date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  });
+  document.getElementById('footerDate').textContent = formattedDate;
+}
+
+function initializeOverviewTab(data) {
+  // Set key metrics in overview tab
+  document.getElementById('median2024').textContent = data.statistics.overall.stats2024.median;
+  document.getElementById('median2025').textContent = data.statistics.overall.stats2025.median;
+  document.getElementById('count2024').textContent = data.summary.totalPatients2024;
+  document.getElementById('count2025').textContent = data.summary.totalPatients2025;
+  
+  document.getElementById('medianChange').textContent = '+' + data.statistics.overall.comparison.medianChange;
+  document.getElementById('meanChange').textContent = '+' + data.statistics.overall.comparison.meanChange.toFixed(1);
+  
+  // Get the 4-hour and 24-hour threshold data
+  const fourHourThreshold = data.statistics.thresholds.find(t => t.threshold === '4 hours');
+  document.getElementById('fourHourChange').textContent = fourHourThreshold.percentagePointChange + '%';
+  
+  const twentyFourHourThreshold = data.statistics.thresholds.find(t => t.threshold === '24 hours');
+  document.getElementById('twentyFourHourChange').textContent = '+' + Math.abs(twentyFourHourThreshold.percentagePointChange) + '%';
+  
+  // Create summary statistics table
+  const statsTable = document.getElementById('statsTable');
+  const stats2024 = data.statistics.overall.stats2024;
+  const stats2025 = data.statistics.overall.stats2025;
+  
+  // Add rows to the table
+  addStatRow(statsTable, 'Median (minutes)', stats2024.median, stats2025.median);
+  addStatRow(statsTable, 'Mean (minutes)', stats2024.mean.toFixed(1), stats2025.mean.toFixed(1));
+  addStatRow(statsTable, 'Q1 - 25th percentile', stats2024.q1, stats2025.q1);
+  addStatRow(statsTable, 'Q3 - 75th percentile', stats2024.q3, stats2025.q3);
+  addStatRow(statsTable, 'IQR', stats2024.iqr, stats2025.iqr);
+  addStatRow(statsTable, 'Standard Deviation', stats2024.stdDev.toFixed(1), stats2025.stdDev.toFixed(1));
+  addStatRow(statsTable, 'Minimum', stats2024.min, stats2025.min);
+  addStatRow(statsTable, 'Maximum', stats2024.max, stats2025.max);
+  
+  // Create summary charts
+  createSummaryDoughnutChart('summary2024Chart', data.summary.wardCounts2024, '2024');
+  createSummaryDoughnutChart('summary2025Chart', data.summary.wardCounts2025, '2025');
+  
+  // Create patient distribution charts
+  createPatientDistributionChart('patientDistribution2024Chart', data.summary.wardCounts2024, '2024');
+  createPatientDistributionChart('patientDistribution2025Chart', data.summary.wardCounts2025, '2025');
+}
+
+function addStatRow(table, label, value2024, value2025) {
+  const row = document.createElement('tr');
+  const change = value2025 - value2024;
+  const percentChange = (value2024 != 0) ? ((change / value2024) * 100).toFixed(1) : 'N/A';
+  
+  row.innerHTML = `
+    <td>${label}</td>
+    <td>${value2024}</td>
+    <td>${value2025}</td>
+    <td>${change > 0 ? '+' : ''}${change}</td>
+    <td>${percentChange != 'N/A' ? (percentChange > 0 ? '+' : '') + percentChange + '%' : 'N/A'}</td>
+  `;
+  
+  table.appendChild(row);
+}
+
+function createSummaryDoughnutChart(canvasId, wardCounts, year) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Define colors for each ward
+  const colors = {
+    W6A: 'rgba(54, 162, 235, 0.8)',
+    W6B: 'rgba(75, 192, 192, 0.8)',
+    W6C: 'rgba(255, 206, 86, 0.8)',
+    W6D: 'rgba(255, 99, 132, 0.8)'
+  };
+  
+  // Calculate total for percentages
+  const total = Object.values(wardCounts).reduce((sum, count) => sum + count, 0);
+  
+  // Prepare data
+  const labels = Object.keys(wardCounts);
+  const data = Object.values(wardCounts);
+  const percentages = data.map(count => ((count / total) * 100).toFixed(1));
+  
+  // Create chart
+  new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+      labels: labels.map((ward, i) => `${ward}: ${percentages[i]}%`),
+      datasets: [{
+        data: data,
+        backgroundColor: labels.map(ward => colors[ward]),
+        borderColor: 'white',
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            font: {
+              size: 12
+            }
+          }
+        },
+        title: {
+          display: true,
+          text: `Patient Distribution ${year}`,
+          font: {
+            size: 16
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.label || '';
+              const value = context.raw;
+              const percentage = ((value / total) * 100).toFixed(1);
+              return `${label.split(':')[0]}: ${value} patients (${percentage}%)`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function createPatientDistributionChart(canvasId, wardCounts, year) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Define colors for each ward
+  const colors = {
+    W6A: 'rgba(54, 162, 235, 0.8)',
+    W6B: 'rgba(75, 192, 192, 0.8)',
+    W6C: 'rgba(255, 206, 86, 0.8)',
+    W6D: 'rgba(255, 99, 132, 0.8)'
+  };
+  
+  // Prepare data
+  const labels = Object.keys(wardCounts);
+  const data = Object.values(wardCounts);
+  
+  // Create chart
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [{
+        label: `Patients ${year}`,
+        data: data,
+        backgroundColor: labels.map(ward => colors[ward]),
+        borderColor: labels.map(ward => colors[ward].replace('0.8', '1')),
+        borderWidth: 1
+      }]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          display: false
+        },
+        title: {
+          display: true,
+          text: `Patient Count by Ward ${year}`,
+          font: {
+            size: 16
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Number of Patients'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Ward'
+          }
+        }
+      }
+    }
+  });
+}
+
+function initializeHistogramTab(histogramData) {
+  // Create histogram chart for percentages
+  createHistogramChart('histogramPercentChart', histogramData, 'percent');
+  
+  // Create histogram chart for counts
+  createHistogramChart('histogramCountChart', histogramData, 'count');
+  
+  // Create histogram data table
+  const histogramTable = document.getElementById('histogramTable');
+  
+  histogramData.forEach(bin => {
+    const row = document.createElement('tr');
+    const percentChange = bin.percent2025 - bin.percent2024;
     
-    return (
-      <div className="w-full p-4">
-        <h3 className="text-lg font-medium mb-2">Ward-Specific Comparison</h3>
-        <div className="mb-8">
-          <h4 className="text-md mb-2">Mean Waiting Time by Ward</h4>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={wardChartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="ward" />
-              <YAxis label={{ value: 'Mean Duration (minutes)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="mean2024" name="Feb 2024" fill="#8884d8" />
-              <Bar dataKey="mean2025" name="Feb 2025" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        
-        <div className="mb-8">
-          <h4 className="text-md mb-2">Median Waiting Time by Ward</h4>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={wardChartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="ward" />
-              <YAxis label={{ value: 'Median Duration (minutes)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="median2024" name="Feb 2024" fill="#8884d8" />
-              <Bar dataKey="median2025" name="Feb 2025" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-        
-        <div>
-          <h4 className="text-md mb-2">Number of Cases by Ward</h4>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={wardChartData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="ward" />
-              <YAxis label={{ value: 'Number of Cases', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="count2024" name="Feb 2024" fill="#8884d8" />
-              <Bar dataKey="count2025" name="Feb 2025" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
-        </div>
-      </div>
-    );
-  };
+    row.innerHTML = `
+      <td>${bin.bin}</td>
+      <td>${bin.count2024}</td>
+      <td>${bin.percent2024}%</td>
+      <td>${bin.count2025}</td>
+      <td>${bin.percent2025}%</td>
+      <td class="${percentChange > 0 ? 'text-success' : 'text-danger'}">${percentChange > 0 ? '+' : ''}${percentChange.toFixed(1)}%</td>
+    `;
+    
+    histogramTable.appendChild(row);
+  });
+}
 
-  const renderStatisticalAnalysis = () => {
-    return (
-      <div className="w-full p-4 overflow-auto">
-        <div className="prose max-w-none">
-          <h1 className="text-2xl font-bold mb-4">Statistical Analysis of Waiting Time Differences</h1>
-          <h2 className="text-xl font-semibold mb-3">February 2024 vs February 2025</h2>
-          
-          <p className="mb-4">This report presents the results of statistical tests comparing bed waiting times between February 2024 and February 2025, organized by key analytical topics.</p>
-          
-          <h2 className="text-xl font-semibold mt-6 mb-3">1. Overall Distribution of Waiting Times</h2>
-          
-          <p className="mb-4">The Mann-Whitney U test was used to compare the overall distribution of waiting times between the two years, without assuming normal distribution.</p>
-          
-          <div className="overflow-x-auto mb-4">
-            <table className="min-w-full bg-white border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="py-2 px-4 border">Statistic</th>
-                  <th className="py-2 px-4 border">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="py-2 px-4 border">U statistic</td>
-                  <td className="py-2 px-4 border">173,006</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-4 border">Z score</td>
-                  <td className="py-2 px-4 border">-15.3897</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-4 border font-bold">p-value</td>
-                  <td className="py-2 px-4 border font-bold">&lt;0.0001</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-4 border">Median 2024</td>
-                  <td className="py-2 px-4 border">270 minutes</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-4 border">Median 2025</td>
-                  <td className="py-2 px-4 border">764 minutes</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <p className="mb-4 font-semibold">Interpretation: There is a highly statistically significant difference in the distribution of waiting times between February 2024 and February 2025 (p &lt; 0.0001). The median waiting time in February 2025 was nearly three times that of February 2024.</p>
-          
-          <p className="mt-4 mb-2 font-semibold">Bootstrap Analysis of Median Difference:</p>
-          
-          <div className="overflow-x-auto mb-4">
-            <table className="min-w-full bg-white border border-gray-300">
-              <thead>
-                <tr className="bg-gray-100">
-                  <th className="py-2 px-4 border">Statistic</th>
-                  <th className="py-2 px-4 border">Value</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td className="py-2 px-4 border">Observed difference (2025 - 2024)</td>
-                  <td className="py-2 px-4 border">494 minutes</td>
-                </tr>
-                <tr>
-                  <td className="py-2 px-4 border font-bold">95% Confidence Interval</td>
-                  <td className="py-2 px-4 border font-bold">[389.0, 631.0]</td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
-          
-          <p className="mb-6 font-semibold">Interpretation: With 95% confidence, the true increase in median waiting time from 2024 to 2025 is between 389 and 631 minutes. This confirms a statistically significant increase in median waiting time.</p>
-          
-          {/* Additional statistical analysis sections omitted for brevity */}
-        </div>
-      </div>
-    );
-  };
+function createHistogramChart(canvasId, histogramData, type) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Prepare data
+  const labels = histogramData.map(bin => bin.bin);
+  const data2024 = histogramData.map(bin => type === 'percent' ? bin.percent2024 : bin.count2024);
+  const data2025 = histogramData.map(bin => type === 'percent' ? bin.percent2025 : bin.count2025);
+  
+  // Create chart
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Feb 2024',
+          data: data2024,
+          backgroundColor: 'rgba(54, 162, 235, 0.7)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Feb 2025',
+          data: data2025,
+          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.dataset.label || '';
+              const value = context.raw;
+              return `${label}: ${value}${type === 'percent' ? '%' : ''}`;
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: type === 'percent' ? 'Percentage of Cases (%)' : 'Number of Cases'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Waiting Time Range'
+          }
+        }
+      }
+    }
+  });
+}
 
-  if (isLoading) {
-    return <div className="p-4 text-center">Loading data...</div>;
+function initializeWardsTab(wardData, summaryData) {
+  // Create ward comparison charts
+  createWardComparisonChart('wardMedianChart', wardData, 'median', 'Median Waiting Time by Ward');
+  createWardComparisonChart('wardMeanChart', wardData, 'mean', 'Mean Waiting Time by Ward');
+  
+  // Create ward statistics table
+  const wardStatsTable = document.getElementById('wardStatsTable');
+  const wards = Object.keys(wardData);
+  
+  wards.forEach(ward => {
+    const medianChange = wardData[ward].stats2025.median - wardData[ward].stats2024.median;
+    const percentChange = ((medianChange / wardData[ward].stats2024.median) * 100).toFixed(1);
+    
+    const row = document.createElement('tr');
+    row.innerHTML = `
+      <td>${ward}</td>
+      <td>${wardData[ward].count2024}</td>
+      <td>${wardData[ward].count2025}</td>
+      <td>${wardData[ward].stats2024.median}</td>
+      <td>${wardData[ward].stats2025.median}</td>
+      <td class="${medianChange > 0 ? 'text-danger' : 'text-success'}">${medianChange > 0 ? '+' : ''}${percentChange}%</td>
+    `;
+    
+    wardStatsTable.appendChild(row);
+  });
+  
+  // Create ward observations
+  const wardObservations = document.getElementById('wardObservations');
+  
+  // Find ward with largest increase
+  let maxIncreaseWard = wards[0];
+  let maxIncreasePercent = 0;
+  
+  wards.forEach(ward => {
+    const medianChange = wardData[ward].stats2025.median - wardData[ward].stats2024.median;
+    const percentChange = (medianChange / wardData[ward].stats2024.median) * 100;
+    
+    if (percentChange > maxIncreasePercent) {
+      maxIncreasePercent = percentChange;
+      maxIncreaseWard = ward;
+    }
+  });
+  
+  // Find ward with smallest increase or decrease
+  let minChangeWard = wards[0];
+  let minChangePercent = (wardData[wards[0]].stats2025.median - wardData[wards[0]].stats2024.median) / wardData[wards[0]].stats2024.median * 100;
+  
+  wards.forEach(ward => {
+    const medianChange = wardData[ward].stats2025.median - wardData[ward].stats2024.median;
+    const percentChange = (medianChange / wardData[ward].stats2024.median) * 100;
+    
+    if (Math.abs(percentChange) < Math.abs(minChangePercent)) {
+      minChangePercent = percentChange;
+      minChangeWard = ward;
+    }
+  });
+  
+  // Add observations
+  addObservation(wardObservations, `Ward ${maxIncreaseWard} shows the largest increase in median waiting time (${maxIncreasePercent.toFixed(1)}%).`);
+  
+  if (minChangePercent < 0) {
+    addObservation(wardObservations, `Ward ${minChangeWard} is the only ward showing a decrease in median waiting time (${minChangePercent.toFixed(1)}%).`);
+  } else {
+    addObservation(wardObservations, `Ward ${minChangeWard} shows the smallest increase in median waiting time (${minChangePercent.toFixed(1)}%).`);
   }
+  
+  // Add additional observations
+  addObservation(wardObservations, `In 2024, the highest median wait was in Ward W6D (${wardData.W6D.stats2024.median} minutes).`);
+  addObservation(wardObservations, `In 2025, the highest median wait is in Ward W6A (${wardData.W6A.stats2025.median} minutes).`);
+  
+  // Add note about patient distribution changes
+  const w6dChangePercent = ((wardData.W6D.count2025 - wardData.W6D.count2024) / wardData.W6D.count2024 * 100).toFixed(0);
+  addObservation(wardObservations, `Ward W6D saw a significant increase in patient volume (${w6dChangePercent}% more patients in 2025).`);
+}
 
-  return (
-    <div className="bg-white rounded-lg shadow p-4">
-      <h2 className="text-xl font-bold mb-6 text-center">Bed Waiting Time Distribution: February 2024 vs 2025 (4-Hour Intervals)</h2>
-      
-      <div className="flex flex-wrap border-b mb-4">
-        <button 
-          className={`px-4 py-2 ${selectedTab === 'histogram' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-          onClick={() => {setSelectedTab('histogram'); setShowStatisticalAnalysis(false);}}
-        >
-          Histogram
-        </button>
-        <button 
-          className={`px-4 py-2 ${selectedTab === 'density' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-          onClick={() => {setSelectedTab('density'); setShowStatisticalAnalysis(false);}}
-        >
-          Density Plot
-        </button>
-        <button 
-          className={`px-4 py-2 ${selectedTab === 'boxplot' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-          onClick={() => {setSelectedTab('boxplot'); setShowStatisticalAnalysis(false);}}
-        >
-          Box Plot
-        </button>
-        <button 
-          className={`px-4 py-2 ${selectedTab === 'wards' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-          onClick={() => {setSelectedTab('wards'); setShowStatisticalAnalysis(false);}}
-        >
-          By Ward
-        </button>
-        <button 
-          className={`px-4 py-2 ${showStatisticalAnalysis ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-          onClick={() => setShowStatisticalAnalysis(true)}
-        >
-          Statistical Analysis
-        </button>
-      </div>
-      
-      {!showStatisticalAnalysis && selectedTab === 'histogram' && renderHistogram()}
-      {!showStatisticalAnalysis && selectedTab === 'density' && renderDensityPlot()}
-      {!showStatisticalAnalysis && selectedTab === 'boxplot' && renderBoxPlot()}
-      {!showStatisticalAnalysis && selectedTab === 'wards' && renderWardComparison()}
-      {showStatisticalAnalysis && renderStatisticalAnalysis()}
-      
-      <div className="mt-6 bg-gray-50 p-4 rounded border">
-        <h3 className="font-medium mb-2">Key Observations:</h3>
-        <ul className="list-disc pl-5 space-y-1">
-          <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
-          <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
-          <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
-          <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
-          <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
-          <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
-        </ul>
-      </div>
-    </div>
-  );
-};
+function addObservation(element, text) {
+  const observation = document.createElement('li');
+  observation.textContent = text;
+  element.appendChild(observation);
+}
 
-// Render the application
-const root = ReactDOM.createRoot(document.getElementById('root'));
-root.render(<WaitingTimeDistributions />);
+function createWardComparisonChart(canvasId, wardData, metric, title) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Prepare data
+  const wards = Object.keys(wardData);
+  const data2024 = wards.map(ward => wardData[ward].stats2024[metric]);
+  const data2025 = wards.map(ward => wardData[ward].stats2025[metric]);
+  
+  // Create chart
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: wards,
+      datasets: [
+        {
+          label: 'Feb 2024',
+          data: data2024,
+          backgroundColor: 'rgba(54, 162, 235, 0.7)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        },
+        {
+          label: 'Feb 2025',
+          data: data2025,
+          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        },
+        title: {
+          display: true,
+          text: title,
+          font: {
+            size: 16
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          title: {
+            display: true,
+            text: 'Minutes'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Ward'
+          }
+        }
+      }
+    }
+  });
+}
+
+function initializeThresholdTab(thresholdData) {
+  // Create threshold compliance chart
+  createThresholdChart('thresholdComplianceChart', thresholdData);
+  
+  // Create threshold table
+  const thresholdTable = document.getElementById('thresholdTable');
+  
+  thresholdData.forEach(threshold => {
+    const row = document.createElement('tr');
+    
+    row.innerHTML = `
+      <td>${threshold.threshold} (${threshold.minutes} min)</td>
+      <td>${threshold.within2024.percent}%</td>
+      <td>${threshold.within2025.percent}%</td>
+      <td class="text-danger">${threshold.percentagePointChange}%</td>
+      <td>${threshold.exceeding2024.percent}%</td>
+      <td>${threshold.exceeding2025.percent}%</td>
+    `;
+    
+    thresholdTable.appendChild(row);
+  });
+}
+
+function createThresholdChart(canvasId, thresholdData) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Prepare data
+  const labels = thresholdData.map(t => t.threshold);
+  const within2024 = thresholdData.map(t => t.within2024.percent);
+  const within2025 = thresholdData.map(t => t.within2025.percent);
+  
+  // Create chart
+  new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: '% Within Standard (2024)',
+          data: within2024,
+          backgroundColor: 'rgba(54, 162, 235, 0.7)',
+          borderColor: 'rgba(54, 162, 235, 1)',
+          borderWidth: 1
+        },
+        {
+          label: '% Within Standard (2025)',
+          data: within2025,
+          backgroundColor: 'rgba(255, 99, 132, 0.7)',
+          borderColor: 'rgba(255, 99, 132, 1)',
+          borderWidth: 1
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        legend: {
+          position: 'top',
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          title: {
+            display: true,
+            text: 'Percentage within Standard (%)'
+          }
+        },
+        x: {
+          title: {
+            display: true,
+            text: 'Time Standard'
+          }
+        }
+      }
+    }
+  });
+}
+
+function initializeFindingsTab(qualityImprovement) {
+  // Populate key findings
+  const keyFindings = document.getElementById('keyFindings');
+  qualityImprovement.keyFindings.forEach(finding => {
+    const li = document.createElement('li');
+    li.textContent = finding;
+    keyFindings.appendChild(li);
+  });
+  
+  // Populate recommendations
+  const recommendations = document.getElementById('recommendations');
+  qualityImprovement.recommendations.forEach(recommendation => {
+    const li = document.createElement('li');
+    li.textContent = recommendation;
+    recommendations.appendChild(li);
+  });
+}
