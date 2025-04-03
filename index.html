@@ -59,6 +59,20 @@
   <div id="root">
     <div class="loading">Loading analysis data...</div>
   </div>
+
+  <script>
+    fetch('./data.json')
+      .then(response => response.json())
+      .then(data => {
+        document.getElementById('json-test').innerText = 
+          'Data loaded successfully! Found ' + 
+          Object.keys(data).length + ' keys.';
+      })
+      .catch(error => {
+        document.getElementById('json-test').innerText = 
+          'Error loading data: ' + error;
+      });
+  </script>
   
   <script>
     // Error handling for script loading
