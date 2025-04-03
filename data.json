@@ -26,7 +26,7 @@
       "stats2024": {
         "count": 798,
         "mean": 451,
-        "median": 271,
+        "median": 270,
         "min": 25,
         "max": 5000,
         "q1": 162,
@@ -38,7 +38,7 @@
       "stats2025": {
         "count": 784,
         "mean": 976,
-        "median": 765,
+        "median": 764,
         "min": 20,
         "max": 4638,
         "q1": 304,
@@ -284,35 +284,25 @@
       {"duration": 1260, "density2024": 2, "density2025": 16},
       {"duration": 1320, "density2024": 1, "density2025": 15},
       {"duration": 1380, "density2024": 1, "density2025": 14},
-      {"duration": 1440, "density2024": 1, "density2025": 13},
-      {"duration": 1500, "density2024": 1, "density2025": 12},
-      {"duration": 1560, "density2024": 1, "density2025": 11},
-      {"duration": 1620, "density2024": 0.9, "density2025": 10},
-      {"duration": 1680, "density2024": 0.8, "density2025": 9},
-      {"duration": 1740, "density2024": 0.7, "density2025": 8},
-      {"duration": 1800, "density2024": 0.7, "density2025": 8},
-      {"duration": 1860, "density2024": 0.6, "density2025": 7},
-      {"duration": 1920, "density2024": 0.5, "density2025": 7},
-      {"duration": 1980, "density2024": 0.5, "density2025": 6},
-      {"duration": 2040, "density2024": 0.4, "density2025": 6},
-      {"duration": 2100, "density2024": 0.4, "density2025": 5},
-      {"duration": 2160, "density2024": 0.3, "density2025": 5},
-      {"duration": 2220, "density2024": 0.3, "density2025": 4},
-      {"duration": 2280, "density2024": 0.3, "density2025": 4},
-      {"duration": 2340, "density2024": 0.2, "density2025": 4},
+      {"duration": 1440, "density2024": 1, "density2025": 13.14},
+      {"duration": 1500, "density2024": 0.8, "density2025": 12},
+      {"duration": 1560, "density2024": 0.7, "density2025": 11},
+      {"duration": 1680, "density2024": 0.5, "density2025": 9},
+      {"duration": 1800, "density2024": 0.4, "density2025": 8},
+      {"duration": 1920, "density2024": 0.3, "density2025": 7},
+      {"duration": 2040, "density2024": 0.3, "density2025": 6},
+      {"duration": 2160, "density2024": 0.2, "density2025": 5},
+      {"duration": 2280, "density2024": 0.2, "density2025": 4},
       {"duration": 2400, "density2024": 0.2, "density2025": 3},
-      {"duration": 2460, "density2024": 0.2, "density2025": 3},
-      {"duration": 2520, "density2024": 0.2, "density2025": 2},
-      {"duration": 2580, "density2024": 0.1, "density2025": 2},
+      {"duration": 2520, "density2024": 0.1, "density2025": 2},
       {"duration": 2640, "density2024": 0.1, "density2025": 2},
-      {"duration": 2700, "density2024": 0.1, "density2025": 1},
       {"duration": 2760, "density2024": 0.1, "density2025": 1},
-      {"duration": 2820, "density2024": 0.1, "density2025": 1},
       {"duration": 2880, "density2024": 0.1, "density2025": 1},
       {"duration": 3000, "density2024": 0.1, "density2025": 0.8},
-      {"duration": 3600, "density2024": 0, "density2025": 0.2},
+      {"duration": 3600, "density2024": 0, "density2025": 0.3},
       {"duration": 4200, "density2024": 0, "density2025": 0.1},
-      {"duration": 4800, "density2024": 0, "density2025": 0}
+      {"duration": 4800, "density2024": 0, "density2025": 0},
+      {"duration": 5400, "density2024": 0, "density2025": 0}
     ],
     "thresholds": [
       {
@@ -320,49 +310,49 @@
         "minutes": 240,
         "within2024": {
           "count": 363,
-          "percent": 45.5
+          "percent": 45.49
         },
         "within2025": {
           "count": 149,
-          "percent": 19.0
+          "percent": 19.01
         },
         "exceeding2024": {
           "count": 435,
-          "percent": 54.5
+          "percent": 54.51
         },
         "exceeding2025": {
           "count": 635,
-          "percent": 81.0
+          "percent": 80.99
         },
-        "percentagePointChange": -26.5
+        "percentagePointChange": -26.48
       },
       {
         "threshold": "6 hours",
         "minutes": 360,
         "within2024": {
           "count": 488,
-          "percent": 61.2
+          "percent": 61.15
         },
         "within2025": {
           "count": 243,
-          "percent": 31.0
+          "percent": 30.99
         },
         "exceeding2024": {
           "count": 310,
-          "percent": 38.8
+          "percent": 38.85
         },
         "exceeding2025": {
           "count": 541,
-          "percent": 69.0
+          "percent": 69.01
         },
-        "percentagePointChange": -30.2
+        "percentagePointChange": -30.16
       },
       {
         "threshold": "12 hours",
         "minutes": 720,
         "within2024": {
           "count": 670,
-          "percent": 84.0
+          "percent": 84
         },
         "within2025": {
           "count": 381,
@@ -370,7 +360,7 @@
         },
         "exceeding2024": {
           "count": 128,
-          "percent": 16.0
+          "percent": 16
         },
         "exceeding2025": {
           "count": 403,
@@ -383,21 +373,21 @@
         "minutes": 1440,
         "within2024": {
           "count": 763,
-          "percent": 95.6
+          "percent": 95.61
         },
         "within2025": {
           "count": 591,
-          "percent": 75.4
+          "percent": 75.38
         },
         "exceeding2024": {
           "count": 35,
-          "percent": 4.4
+          "percent": 4.39
         },
         "exceeding2025": {
           "count": 193,
-          "percent": 24.6
+          "percent": 24.62
         },
-        "percentagePointChange": -20.2
+        "percentagePointChange": -20.23
       }
     ],
     "statAnalysis": {
@@ -414,19 +404,25 @@
         "statistic": 126.7145,
         "pValue": 0.0001,
         "oddsRatio": 3.56,
-        "ci95": [2.84, 4.46]
+        "ci95": [2.84, 4.46],
+        "bootstrapDiff": -0.2648,
+        "bootstrapCI95": [-0.3079, -0.2218]
       },
       "chiSquare6Hour": {
         "statistic": 144.7049,
         "pValue": 0.0001,
         "oddsRatio": 3.50,
-        "ci95": [2.85, 4.31]
+        "ci95": [2.85, 4.31],
+        "bootstrapDiff": -0.3016,
+        "bootstrapCI95": [-0.3458, -0.2549]
       },
       "chiSquare24Hour": {
         "statistic": 135.7921,
         "pValue": 0.0001,
         "oddsRatio": 7.12,
-        "ci95": [4.89, 10.37]
+        "ci95": [4.89, 10.37],
+        "bootstrapDiff": 0.2023,
+        "bootstrapCI95": [0.1666, 0.2353]
       }
     }
   }
