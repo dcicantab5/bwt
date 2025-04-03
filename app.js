@@ -255,33 +255,36 @@ function createDensityChart(canvasId, densityData) {
     
     const xValue = densityChart.scales.x.getValueForPixel(x);
     
-    // Only show tooltip at 2-hour intervals (rounded to nearest 2-hour mark)
-    const hourValue = Math.floor(xValue / 60);
-    const rounded2Hours = Math.round(hourValue / 2) * 2;
-    const rounded2HoursMinutes = rounded2Hours * 60;
+    // Only show tooltip at exact 2-hour intervals
+    const exactHours = Math.floor(xValue / 60);
+    // Check if we're at an exact 2-hour mark (0h, 2h, 4h, etc.)
+    const is2HourMark = exactHours % 2 === 0 && Math.abs(xValue - (exactHours * 60)) < 30;
     
-    // Find closest data point to the rounded 2-hour interval
+    if (!is2HourMark) {
+      tooltip.style.display = 'none';
+      pointsContainer.innerHTML = '';
+      return;
+    }
+    
+    // Get the exact 2-hour position
+    const exact2Hours = exactHours % 2 === 0 ? exactHours : exactHours - 1;
+    const exact2HoursMinutes = exact2Hours * 60;
+    
+    // Find closest data point to the exact 2-hour interval
     let closestIndex = 0;
-    let minDistance = Math.abs(densityData[0].duration - rounded2HoursMinutes);
+    let minDistance = Math.abs(densityData[0].duration - exact2HoursMinutes);
     
     for (let i = 1; i < densityData.length; i++) {
-      const distance = Math.abs(densityData[i].duration - rounded2HoursMinutes);
+      const distance = Math.abs(densityData[i].duration - exact2HoursMinutes);
       if (distance < minDistance) {
         minDistance = distance;
         closestIndex = i;
       }
     }
     
-    // Get y values for the 2-hour interval
+    // Get y values for the exact 2-hour interval
     const y2024 = densityData[closestIndex].density2024;
     const y2025 = densityData[closestIndex].density2025;
-    
-    // Only show tooltip and points at 2-hour intervals
-    if (Math.abs(xValue - rounded2HoursMinutes) > 30) {
-      tooltip.style.display = 'none';
-      pointsContainer.innerHTML = '';
-      return;
-    }
     
     // Convert y values to canvas coordinates
     const y2024Pixel = densityChart.scales.y.getPixelForValue(y2024);
@@ -292,8 +295,8 @@ function createDensityChart(canvasId, densityData) {
     tooltip.style.left = (x + 10) + 'px';
     tooltip.style.top = (y - 50) + 'px';
     
-    // Format time as a 2-hour interval
-    const timeStr = `${rounded2Hours}h 0m`;
+    // Format time as a 2-hour interval without minutes
+    const timeStr = `${exact2Hours}h`;
     
     tooltip.innerHTML = `
       <div style="font-weight: bold;">${timeStr}</div>
@@ -369,7 +372,7 @@ function createDensityChart(canvasId, densityData) {
       tooltip.style.left = (x24h + 10) + 'px';
       tooltip.style.top = (rect.top + 10) + 'px';
       tooltip.innerHTML = `
-        <div style="font-weight: bold;">24h 0m</div>
+        <div style="font-weight: bold;">24h</div>
         <div style="color: rgba(88, 103, 221, 1);">Feb 2024: 3.51</div>
         <div style="color: rgba(121, 204, 160, 1);">Feb 2025: 13.14</div>
       `;
