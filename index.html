@@ -6,15 +6,18 @@
   <meta name="description" content="Hospital Bed Waiting Time Distribution Analysis - Comparing February 2024 vs 2025">
   <title>Bed Waiting Time Analysis Dashboard</title>
   
-  <!-- Load React and ReactDOM from CDN -->
-  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
-  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-  
-  <!-- Include Tailwind CSS for styling -->
+  <!-- Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Load Recharts for visualization -->
-  <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.min.js"></script>
+  <!-- React and ReactDOM -->
+  <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
+  <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
+  
+  <!-- Babel for JSX -->
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
+  <!-- Recharts (Complete package with all components) -->
+  <script src="https://unpkg.com/recharts@2.5.0/umd/Recharts.js"></script>
   
   <!-- Custom styles -->
   <style>
@@ -76,9 +79,28 @@
       <p class="mt-1">Created with React, Recharts and Tailwind CSS</p>
     </div>
   </footer>
+
+    <script>
+    // Error handling for script loading
+    window.addEventListener('error', function(e) {
+      if (e.filename && (e.filename.includes('react') || e.filename.includes('recharts'))) {
+        document.getElementById('root').innerHTML = 
+          '<div class="error-message">' +
+          '<h2>Error Loading Resources</h2>' +
+          '<p>There was a problem loading the required libraries. Please check your internet connection and try again.</p>' +
+          '<p>Technical details: ' + e.message + '</p>' +
+          '</div>';
+      }
+    }, true);
+    
+    // Make Recharts components globally available for app.js
+    window.Recharts = Recharts;
+  </script>
   
-  <!-- Load the data and application scripts -->
-  <script src="data.json"></script>
-  <script src="app.js"></script>
+  <!-- Load and process app.js with Babel -->
+  <script type="text/babel" data-type="module" src="./app.js"></script>
+  
+
+
 </body>
 </html>
