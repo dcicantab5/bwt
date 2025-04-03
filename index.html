@@ -6,18 +6,16 @@
   <meta name="description" content="Hospital Bed Waiting Time Distribution Analysis - Comparing February 2024 vs 2025">
   <title>Bed Waiting Time Analysis Dashboard</title>
   
-  <!-- Tailwind CSS from CDN -->
-  <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+  <!-- Load React, React DOM and Babel -->
+  <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
+  <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
+  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <!-- React & ReactDOM from jsDelivr (more reliable CDN) -->
-  <script src="https://cdn.jsdelivr.net/npm/react@17.0.2/umd/react.development.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/react-dom@17.0.2/umd/react-dom.development.js"></script>
+  <!-- Load Tailwind CSS for styling -->
+  <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- D3 (dependency for Recharts) -->
-  <script src="https://cdn.jsdelivr.net/npm/d3@7.8.5/dist/d3.min.js"></script>
-  
-  <!-- Recharts from jsDelivr -->
-  <script src="https://cdn.jsdelivr.net/npm/recharts@2.1.9/umd/Recharts.min.js"></script>
+  <!-- Load Recharts (chart library) -->
+  <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.min.js"></script>
   
   <!-- Custom styles -->
   <style>
@@ -37,19 +35,6 @@
       .container {
         padding: 10px;
       }
-    }
-
-    /* Simple CSS for charts if Recharts fails */
-    .fallback-chart {
-      width: 100%;
-      height: 400px;
-      background-color: #f9f9f9;
-      border: 1px solid #ddd;
-      border-radius: 4px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
     }
     
     /* Loading spinner */
@@ -94,149 +79,30 @@
     </div>
   </footer>
   
-  <!-- Alternative standalone visualization script -->
+  <!-- Debug script -->
   <script>
-    // This script will run if React/Recharts fail to load
-    function createFallbackVisualization() {
-      const appElement = document.getElementById('app');
-      
-      // Only create fallback if app is still showing loading state
-      if (appElement.querySelector('.loader')) {
-        console.log('Creating fallback visualization');
-        
-        // Replace loader with fallback content
-        appElement.innerHTML = `
-          <h2 class="text-xl font-bold mb-6 text-center">Bed Waiting Time Distribution: February 2024 vs 2025</h2>
-          
-          <div class="mb-8">
-            <h3 class="text-lg font-medium mb-2">Interactive visualization could not be loaded</h3>
-            <p class="mb-4">Displaying simplified data instead:</p>
-            
-            <div class="overflow-x-auto">
-              <table class="min-w-full bg-white border border-gray-300">
-                <thead>
-                  <tr class="bg-gray-100">
-                    <th class="py-2 px-4 border">Statistic</th>
-                    <th class="py-2 px-4 border">Feb 2024</th>
-                    <th class="py-2 px-4 border">Feb 2025</th>
-                    <th class="py-2 px-4 border">Change</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td class="py-2 px-4 border font-medium">Median wait time</td>
-                    <td class="py-2 px-4 border">271 min</td>
-                    <td class="py-2 px-4 border">765 min</td>
-                    <td class="py-2 px-4 border">+182%</td>
-                  </tr>
-                  <tr>
-                    <td class="py-2 px-4 border font-medium">Mean wait time</td>
-                    <td class="py-2 px-4 border">451 min</td>
-                    <td class="py-2 px-4 border">976 min</td>
-                    <td class="py-2 px-4 border">+116%</td>
-                  </tr>
-                  <tr>
-                    <td class="py-2 px-4 border font-medium">% under 4 hours</td>
-                    <td class="py-2 px-4 border">45.5%</td>
-                    <td class="py-2 px-4 border">19.0%</td>
-                    <td class="py-2 px-4 border">-26.5%</td>
-                  </tr>
-                  <tr>
-                    <td class="py-2 px-4 border font-medium">% over 24 hours</td>
-                    <td class="py-2 px-4 border">4.4%</td>
-                    <td class="py-2 px-4 border">24.6%</td>
-                    <td class="py-2 px-4 border">+20.2%</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
-          
-          <div class="mt-6 bg-gray-50 p-4 rounded border">
-            <h3 class="font-medium mb-2">Key Observations:</h3>
-            <ul class="list-disc pl-5 space-y-1">
-              <li>The proportion of patients with waits under 4 hours decreased dramatically from 45.5% in 2024 to only 19.0% in 2025.</li>
-              <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
-              <li>The percentage of very long waits (over 24 hours) increased from approximately 4.4% in 2024 to over 24.6% in 2025.</li>
-              <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution.</li>
-              <li>Most wards show substantial increases in mean waiting times, with some wards experiencing tripled wait times.</li>
-            </ul>
-          </div>
-        `;
-        
-        // Update debug info
-        const debugInfo = document.getElementById('debug-info');
-        debugInfo.innerHTML += '<div class="text-orange-500 mt-2">Fallback visualization displayed due to library loading issues</div>';
-      }
-    }
-    
-    // Check for library loading
     document.addEventListener('DOMContentLoaded', function() {
       const debugInfo = document.getElementById('debug-info');
       
-      // Add error handling for the entire page
-      window.addEventListener('error', function(event) {
-        console.error('Page error:', event);
-        debugInfo.innerHTML += `<div class="text-red-500 mt-2">Error: ${event.message}</div>`;
-        
-        // If error occurs, try to create fallback visualization
-        setTimeout(createFallbackVisualization, 1000);
-      });
-      
-      // Test if libraries loaded successfully
+      // Check if libraries loaded successfully
       const checks = [
         { name: 'React', available: typeof React !== 'undefined' },
         { name: 'ReactDOM', available: typeof ReactDOM !== 'undefined' },
+        { name: 'Babel', available: typeof Babel !== 'undefined' },
         { name: 'Recharts', available: typeof Recharts !== 'undefined' }
       ];
       
       let debugHTML = '<div>Library Status:</div>';
-      let allLibrariesLoaded = true;
-      
       checks.forEach(check => {
-        const status = check.available ? '✅' : '❌';
-        debugHTML += `<div>${check.name}: ${status}</div>`;
-        if (!check.available) allLibrariesLoaded = false;
+        debugHTML += `<div>${check.name}: ${check.available ? '✅' : '❌'}</div>`;
       });
       
       debugInfo.innerHTML = debugHTML;
-      
-      // If libraries failed to load, show fallback visualization
-      if (!allLibrariesLoaded) {
-        console.warn('Some libraries failed to load, using fallback visualization');
-        setTimeout(createFallbackVisualization, 1000);
-      }
     });
   </script>
-
-  <!-- Simple inline data visualization (if all else fails) -->
-  <script>
-    // Attempt to load data directly
-    setTimeout(function() {
-      // Only run this if the app is still showing loading state
-      const appElement = document.getElementById('app');
-      if (appElement.querySelector('.loader')) {
-        fetch('./data.json')
-          .then(response => {
-            if (!response.ok) throw new Error('Failed to load data.json');
-            return response.json();
-          })
-          .then(data => {
-            console.log('Data loaded successfully through fallback', data);
-            // Data is successfully loaded, but likely React failed
-            // Create simple HTML-based visualization
-            createFallbackVisualization();
-          })
-          .catch(error => {
-            console.error('Fallback data loading failed:', error);
-            // If data loading fails too, still show static fallback
-            createFallbackVisualization();
-          });
-      }
-    }, 3000); // Wait 3 seconds before trying this approach
-  </script>
   
-  <!-- App script with defer attribute to ensure DOM is loaded first -->
-  <script src="app.js" defer></script>
+  <!-- Load the data and application script -->
+  <script src="data.json" type="text/javascript"></script>
+  <script type="text/babel" src="app.js"></script>
 </body>
 </html>
