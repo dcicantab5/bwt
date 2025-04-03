@@ -6,15 +6,14 @@
   <meta name="description" content="Hospital Bed Waiting Time Distribution Analysis - Comparing February 2024 vs 2025">
   <title>Bed Waiting Time Analysis Dashboard</title>
   
-  <!-- Load React, React DOM and Babel -->
+  <!-- Load React and ReactDOM from CDN -->
   <script src="https://unpkg.com/react@17/umd/react.development.js"></script>
   <script src="https://unpkg.com/react-dom@17/umd/react-dom.development.js"></script>
-  <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <!-- Load Tailwind CSS for styling -->
+  <!-- Include Tailwind CSS for styling -->
   <script src="https://cdn.tailwindcss.com"></script>
   
-  <!-- Load Recharts (chart library) -->
+  <!-- Load Recharts for visualization -->
   <script src="https://unpkg.com/recharts@2.1.9/umd/Recharts.min.js"></script>
   
   <!-- Custom styles -->
@@ -75,34 +74,11 @@
     <div class="container mx-auto text-center text-gray-600 text-sm">
       <p>Data visualization of hospital bed waiting times</p>
       <p class="mt-1">Created with React, Recharts and Tailwind CSS</p>
-      <div id="debug-info" class="mt-4 text-xs text-gray-500"></div>
     </div>
   </footer>
   
-  <!-- Debug script -->
-  <script>
-    document.addEventListener('DOMContentLoaded', function() {
-      const debugInfo = document.getElementById('debug-info');
-      
-      // Check if libraries loaded successfully
-      const checks = [
-        { name: 'React', available: typeof React !== 'undefined' },
-        { name: 'ReactDOM', available: typeof ReactDOM !== 'undefined' },
-        { name: 'Babel', available: typeof Babel !== 'undefined' },
-        { name: 'Recharts', available: typeof Recharts !== 'undefined' }
-      ];
-      
-      let debugHTML = '<div>Library Status:</div>';
-      checks.forEach(check => {
-        debugHTML += `<div>${check.name}: ${check.available ? '✅' : '❌'}</div>`;
-      });
-      
-      debugInfo.innerHTML = debugHTML;
-    });
-  </script>
-  
-  <!-- Load the data and application script -->
-  <script src="data.json" type="text/javascript"></script>
-  <script type="text/babel" src="app.js"></script>
+  <!-- Load the data and application scripts -->
+  <script src="data.json"></script>
+  <script src="app.js"></script>
 </body>
 </html>
