@@ -224,75 +224,140 @@ function createDensityChart(canvasId, densityData) {
     }
   });
   
+  // Create SVG for intersection points
+  const pointsContainer = document.createElement('div');
+  pointsContainer.id = 'densityPointsContainer';
+  pointsContainer.style.position = 'absolute';
+  pointsContainer.style.top = '0';
+  pointsContainer.style.left = '0';
+  pointsContainer.style.width = '100%';
+  pointsContainer.style.height = '100%';
+  pointsContainer.style.pointerEvents = 'none';
+  chartContainer.appendChild(pointsContainer);
+  
   // Add interactivity
   chartContainer.addEventListener('mousemove', function(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
     const y = event.clientY - rect.top;
     
-    // Check if the mouse is within the chart area
-    if (y < 0 || y > canvas.height) {
+    // Get chart area positions
+    const chartArea = densityChart.chartArea;
+    const yAxisBottom = chartArea.bottom;
+    
+    // Check if the mouse is within the chart area (horizontally)
+    if (x < chartArea.left || x > chartArea.right) {
       tooltip.style.display = 'none';
       verticalLine.style.display = 'none';
+      pointsContainer.innerHTML = '';
       return;
     }
     
     const xValue = densityChart.scales.x.getValueForPixel(x);
     
-    // Only show tooltip at 2-hour intervals (rounded to nearest 2-hour mark)
-    const hourValue = Math.floor(xValue / 60);
-    const rounded2Hours = Math.round(hourValue / 2) * 2;
-    const rounded2HoursMinutes = rounded2Hours * 60;
-    
-    // Find closest data point to the rounded 2-hour interval
+    // Find closest data point
     let closestIndex = 0;
-    let minDistance = Math.abs(densityData[0].duration - rounded2HoursMinutes);
+    let minDistance = Math.abs(densityData[0].duration - xValue);
     
     for (let i = 1; i < densityData.length; i++) {
-      const distance = Math.abs(densityData[i].duration - rounded2HoursMinutes);
+      const distance = Math.abs(densityData[i].duration - xValue);
       if (distance < minDistance) {
         minDistance = distance;
         closestIndex = i;
       }
     }
     
+    // Get y values for both datasets at this x position
+    const y2024 = densityData[closestIndex].density2024;
+    const y2025 = densityData[closestIndex].density2025;
+    
+    // Convert y values to canvas coordinates
+    const y2024Pixel = densityChart.scales.y.getPixelForValue(y2024);
+    const y2025Pixel = densityChart.scales.y.getPixelForValue(y2025);
+    
     // Update tooltip
     tooltip.style.display = 'block';
     tooltip.style.left = (x + 10) + 'px';
     tooltip.style.top = (y - 50) + 'px';
+    
+    // Format time
+    const hours = Math.floor(xValue / 60);
+    const minutes = Math.round(xValue % 60);
+    const timeStr = `${hours}h ${minutes}m`;
+    
     tooltip.innerHTML = `
-      <div style="font-weight: bold;">${rounded2Hours}h 0m</div>
-      <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${densityData[closestIndex].density2024.toFixed(2)}</div>
-      <div style="color: rgba(121, 204, 160, 1);">Feb 2025: ${densityData[closestIndex].density2025.toFixed(2)}</div>
+      <div style="font-weight: bold;">${timeStr}</div>
+      <div style="color: rgba(88, 103, 221, 1);">Feb 2024: ${y2024.toFixed(2)}</div>
+      <div style="color: rgba(121, 204, 160, 1);">Feb 2025: ${y2025.toFixed(2)}</div>
     `;
     
     // Show vertical line only within chart area
     verticalLine.style.display = 'block';
-    verticalLine.style.height = canvas.height + 'px';
+    verticalLine.style.height = (yAxisBottom - chartArea.top) + 'px';
     verticalLine.style.left = x + 'px';
-    verticalLine.style.top = '0';
+    verticalLine.style.top = chartArea.top + 'px';
+    
+    // Add intersection points
+    pointsContainer.innerHTML = '';
+    
+    // Create point for 2024 data
+    if (y2024 > 0) {
+      const point2024 = document.createElement('div');
+      point2024.style.position = 'absolute';
+      point2024.style.width = '8px';
+      point2024.style.height = '8px';
+      point2024.style.borderRadius = '50%';
+      point2024.style.backgroundColor = 'rgba(88, 103, 221, 1)';
+      point2024.style.transform = 'translate(-4px, -4px)';
+      point2024.style.left = x + 'px';
+      point2024.style.top = y2024Pixel + 'px';
+      pointsContainer.appendChild(point2024);
+    }
+    
+    // Create point for 2025 data
+    if (y2025 > 0) {
+      const point2025 = document.createElement('div');
+      point2025.style.position = 'absolute';
+      point2025.style.width = '8px';
+      point2025.style.height = '8px';
+      point2025.style.borderRadius = '50%';
+      point2025.style.backgroundColor = 'rgba(121, 204, 160, 1)';
+      point2025.style.transform = 'translate(-4px, -4px)';
+      point2025.style.left = x + 'px';
+      point2025.style.top = y2025Pixel + 'px';
+      pointsContainer.appendChild(point2025);
+    }
   });
   
   chartContainer.addEventListener('mouseout', function() {
     tooltip.style.display = 'none';
     verticalLine.style.display = 'none';
+    pointsContainer.innerHTML = '';
   });
   
   // Special point at 24h
   canvas.addEventListener('click', function(event) {
     const rect = canvas.getBoundingClientRect();
     const x = event.clientX - rect.left;
-    const y = event.clientY - rect.top;
     
     const xValue = densityChart.scales.x.getValueForPixel(x);
+    const chartArea = densityChart.chartArea;
     
     // If near 24h mark (1440 minutes), show special tooltip
     if (Math.abs(xValue - 1440) < 120) {
       const x24h = densityChart.scales.x.getPixelForValue(1440);
       
+      // Get y values at 24h
+      const y2024At24h = 3.51;
+      const y2025At24h = 13.14;
+      
+      // Convert to pixel positions
+      const y2024Pixel = densityChart.scales.y.getPixelForValue(y2024At24h);
+      const y2025Pixel = densityChart.scales.y.getPixelForValue(y2025At24h);
+      
       tooltip.style.display = 'block';
       tooltip.style.left = (x24h + 10) + 'px';
-      tooltip.style.top = (y - 50) + 'px';
+      tooltip.style.top = (rect.top + 10) + 'px';
       tooltip.innerHTML = `
         <div style="font-weight: bold;">24h 0m</div>
         <div style="color: rgba(88, 103, 221, 1);">Feb 2024: 3.51</div>
@@ -300,9 +365,36 @@ function createDensityChart(canvasId, densityData) {
       `;
       
       verticalLine.style.display = 'block';
-      verticalLine.style.height = canvas.height + 'px';
+      verticalLine.style.height = (chartArea.bottom - chartArea.top) + 'px';
       verticalLine.style.left = x24h + 'px';
-      verticalLine.style.top = '0';
+      verticalLine.style.top = chartArea.top + 'px';
+      
+      // Add intersection points
+      pointsContainer.innerHTML = '';
+      
+      // Create point for 2024 data
+      const point2024 = document.createElement('div');
+      point2024.style.position = 'absolute';
+      point2024.style.width = '8px';
+      point2024.style.height = '8px';
+      point2024.style.borderRadius = '50%';
+      point2024.style.backgroundColor = 'rgba(88, 103, 221, 1)';
+      point2024.style.transform = 'translate(-4px, -4px)';
+      point2024.style.left = x24h + 'px';
+      point2024.style.top = y2024Pixel + 'px';
+      pointsContainer.appendChild(point2024);
+      
+      // Create point for 2025 data
+      const point2025 = document.createElement('div');
+      point2025.style.position = 'absolute';
+      point2025.style.width = '8px';
+      point2025.style.height = '8px';
+      point2025.style.borderRadius = '50%';
+      point2025.style.backgroundColor = 'rgba(121, 204, 160, 1)';
+      point2025.style.transform = 'translate(-4px, -4px)';
+      point2025.style.left = x24h + 'px';
+      point2025.style.top = y2025Pixel + 'px';
+      pointsContainer.appendChild(point2025);
     }
   });
 }
