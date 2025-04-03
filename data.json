@@ -1,339 +1,398 @@
 {
-  "histogramData": [
-    {
-      "bin": "0-4h",
-      "count2024": 186,
-      "count2025": 89,
-      "percent2024": 45.5,
-      "percent2025": 19.0
-    },
-    {
-      "bin": "4-8h",
-      "count2024": 105,
-      "count2025": 96,
-      "percent2024": 25.7,
-      "percent2025": 20.5
-    },
-    {
-      "bin": "8-12h",
-      "count2024": 62,
-      "count2025": 78,
-      "percent2024": 15.2,
-      "percent2025": 16.6
-    },
-    {
-      "bin": "12-16h",
-      "count2024": 28,
-      "count2025": 45,
-      "percent2024": 6.8,
-      "percent2025": 9.6
-    },
-    {
-      "bin": "16-20h",
-      "count2024": 8,
-      "count2025": 26,
-      "percent2024": 2.0,
-      "percent2025": 5.5
-    },
-    {
-      "bin": "20-24h",
-      "count2024": 2,
-      "count2025": 15,
-      "percent2024": 0.5,
-      "percent2025": 3.2
-    },
-    {
-      "bin": "24-28h",
-      "count2024": 9,
-      "count2025": 54,
-      "percent2024": 2.2,
-      "percent2025": 11.5
-    },
-    {
-      "bin": "28-32h",
-      "count2024": 5,
-      "count2025": 39,
-      "percent2024": 1.2,
-      "percent2025": 8.3
-    },
-    {
-      "bin": "32-36h",
-      "count2024": 2,
-      "count2025": 12,
-      "percent2024": 0.5,
-      "percent2025": 2.6
-    },
-    {
-      "bin": "36-40h",
-      "count2024": 0,
-      "count2025": 6,
-      "percent2024": 0.0,
-      "percent2025": 1.3
-    },
-    {
-      "bin": "40-44h",
-      "count2024": 1,
-      "count2025": 4,
-      "percent2024": 0.2,
-      "percent2025": 0.9
-    },
-    {
-      "bin": "44-48h",
-      "count2024": 1,
-      "count2025": 2,
-      "percent2024": 0.2,
-      "percent2025": 0.4
-    },
-    {
-      "bin": "48h+",
-      "count2024": 0,
-      "count2025": 3,
-      "percent2024": 0.0,
-      "percent2025": 0.6
-    }
-  ],
-  "densityData": [
-    {
-      "duration": 0,
-      "density2024": 5.5,
-      "density2025": 1.2
-    },
-    {
-      "duration": 120,
-      "density2024": 8.2,
-      "density2025": 3.5
-    },
-    {
-      "duration": 240,
-      "density2024": 10.4,
-      "density2025": 5.1
-    },
-    {
-      "duration": 360,
-      "density2024": 9.8,
-      "density2025": 6.3
-    },
-    {
-      "duration": 480,
-      "density2024": 8.5,
-      "density2025": 6.8
-    },
-    {
-      "duration": 600,
-      "density2024": 6.7,
-      "density2025": 6.4
-    },
-    {
-      "duration": 720,
-      "density2024": 5.1,
-      "density2025": 6.0
-    },
-    {
-      "duration": 840,
-      "density2024": 3.8,
-      "density2025": 5.5
-    },
-    {
-      "duration": 960,
-      "density2024": 2.5,
-      "density2025": 4.8
-    },
-    {
-      "duration": 1080,
-      "density2024": 1.9,
-      "density2025": 4.3
-    },
-    {
-      "duration": 1200,
-      "density2024": 1.1,
-      "density2025": 3.8
-    },
-    {
-      "duration": 1320,
-      "density2024": 0.7,
-      "density2025": 3.5
-    },
-    {
-      "duration": 1440,
-      "density2024": 0.5,
-      "density2025": 3.2
-    },
-    {
-      "duration": 1560,
-      "density2024": 0.4,
-      "density2025": 2.9
-    },
-    {
-      "duration": 1680,
-      "density2024": 0.3,
-      "density2025": 2.7
-    },
-    {
-      "duration": 1800,
-      "density2024": 0.2,
-      "density2025": 2.4
-    },
-    {
-      "duration": 1920,
-      "density2024": 0.2,
-      "density2025": 2.0
-    },
-    {
-      "duration": 2040,
-      "density2024": 0.1,
-      "density2025": 1.6
-    },
-    {
-      "duration": 2160,
-      "density2024": 0.1,
-      "density2025": 1.2
-    },
-    {
-      "duration": 2280,
-      "density2024": 0.0,
-      "density2025": 0.9
-    },
-    {
-      "duration": 2400,
-      "density2024": 0.0,
-      "density2025": 0.7
-    }
-  ],
-  "boxPlotData": [
-    {
-      "year": "2024",
-      "min": 12,
-      "max": 3254,
-      "median": 271,
-      "q1": 120,
-      "q3": 540,
-      "mean": 412.3
-    },
-    {
-      "year": "2025",
-      "min": 18,
-      "max": 4350,
-      "median": 765,
-      "q1": 430,
-      "q3": 1420,
-      "mean": 912.7
-    }
-  ],
-  "wardData": {
-    "W6A": {
-      "stats2024": {
-        "count": 105,
-        "mean": 395.2,
-        "median": 240
-      },
-      "stats2025": {
-        "count": 112,
-        "mean": 1250.4,
-        "median": 820
-      },
-      "comparison": {
-        "meanChange": 855.2,
-        "medianChange": 580,
-        "meanChangePercent": "216.4",
-        "medianChangePercent": "241.7"
-      }
-    },
-    "W6B": {
-      "stats2024": {
-        "count": 108,
-        "mean": 342.8,
-        "median": 220
-      },
-      "stats2025": {
-        "count": 102,
-        "mean": 1090.6,
-        "median": 732
-      },
-      "comparison": {
-        "meanChange": 747.8,
-        "medianChange": 512,
-        "meanChangePercent": "218.1",
-        "medianChangePercent": "232.7"
-      }
-    },
-    "W6C": {
-      "stats2024": {
-        "count": 96,
-        "mean": 480.5,
-        "median": 315
-      },
-      "stats2025": {
-        "count": 97,
-        "mean": 850.2,
-        "median": 600
-      },
-      "comparison": {
-        "meanChange": 369.7,
-        "medianChange": 285,
-        "meanChangePercent": "76.9",
-        "medianChangePercent": "90.5"
-      }
-    },
-    "W6D": {
-      "stats2024": {
-        "count": 100,
-        "mean": 440.3,
-        "median": 330
-      },
-      "stats2025": {
-        "count": 98,
-        "mean": 420.8,
-        "median": 350
-      },
-      "comparison": {
-        "meanChange": -19.5,
-        "medianChange": 20,
-        "meanChangePercent": "-4.4",
-        "medianChangePercent": "6.1"
-      }
-    }
+  "metadata": {
+    "title": "Bed Waiting Time Analysis (2024-2025)",
+    "generatedDate": "2025-04-03T02:17:00.223Z",
+    "dataSource": "Bed Waiting Med -Table 1 2.csv",
+    "wardOrder": [
+      "W6A",
+      "W6B",
+      "W6C",
+      "W6D"
+    ]
   },
-  "statisticalAnalysis": {
-    "mannWhitney": {
-      "uStatistic": 173006,
-      "zScore": -15.3897,
-      "pValue": 0.0001,
-      "median2024": 270,
-      "median2025": 764
+  "summary": {
+    "wardCounts2024": {
+      "W6A": 230,
+      "W6B": 279,
+      "W6C": 229,
+      "W6D": 60
     },
-    "bootstrapMedian": {
-      "observedDifference": 494,
-      "confidenceInterval": [389.0, 631.0]
+    "wardCounts2025": {
+      "W6A": 222,
+      "W6B": 183,
+      "W6C": 184,
+      "W6D": 195
     },
-    "fourHourStandard": {
-      "chiSquare": 126.7145,
-      "pValue": 0.0001,
-      "oddsRatio": 3.56,
-      "confidenceInterval": [2.84, 4.46],
-      "proportion2024": 45.49,
-      "proportion2025": 19.01,
-      "proportionDifference": -26.48,
-      "proportionConfidenceInterval": [-30.79, -22.18]
+    "totalPatients2024": 798,
+    "totalPatients2025": 784
+  },
+  "statistics": {
+    "overall": {
+      "stats2024": {
+        "count": 798,
+        "mean": 450.92,
+        "median": 271,
+        "min": 25,
+        "max": 5505,
+        "q1": 162,
+        "q3": 534,
+        "iqr": 372,
+        "stdDev": 534.25,
+        "ci95": [
+          413.85,
+          487.99
+        ]
+      },
+      "stats2025": {
+        "count": 784,
+        "mean": 976.47,
+        "median": 765,
+        "min": 20,
+        "max": 4638,
+        "q1": 304,
+        "q3": 1428,
+        "iqr": 1124,
+        "stdDev": 820.83,
+        "ci95": [
+          919.01,
+          1033.93
+        ]
+      },
+      "comparison": {
+        "medianChange": 494,
+        "medianChangePercent": 182.3,
+        "meanChange": 525.55,
+        "meanChangePercent": 116.6
+      }
     },
-    "sixHourStandard": {
-      "chiSquare": 144.7049,
-      "pValue": 0.0001,
-      "oddsRatio": 3.50,
-      "confidenceInterval": [2.85, 4.31],
-      "proportion2024": 61.15,
-      "proportion2025": 30.99,
-      "proportionDifference": -30.16,
-      "proportionConfidenceInterval": [-34.58, -25.49]
+    "byWard": {
+      "W6A": {
+        "stats2024": {
+          "count": 230,
+          "mean": 468.59,
+          "median": 345,
+          "min": 38,
+          "max": 2615,
+          "q1": 192,
+          "q3": 634,
+          "iqr": 442,
+          "stdDev": 393.18,
+          "ci95": [
+            417.77,
+            519.40
+          ]
+        },
+        "stats2025": {
+          "count": 222,
+          "mean": 1076.46,
+          "median": 940,
+          "min": 20,
+          "max": 4638,
+          "q1": 417,
+          "q3": 1428,
+          "iqr": 1011,
+          "stdDev": 830.99,
+          "ci95": [
+            967.15,
+            1185.77
+          ]
+        }
+      },
+      "W6B": {
+        "stats2024": {
+          "count": 279,
+          "mean": 297.52,
+          "median": 207,
+          "min": 36,
+          "max": 3214,
+          "q1": 133,
+          "q3": 338,
+          "iqr": 205,
+          "stdDev": 302.93,
+          "ci95": [
+            261.98,
+            333.07
+          ]
+        },
+        "stats2025": {
+          "count": 183,
+          "mean": 1048.96,
+          "median": 895,
+          "min": 34,
+          "max": 3746,
+          "q1": 305,
+          "q3": 1541,
+          "iqr": 1236,
+          "stdDev": 860.42,
+          "ci95": [
+            924.30,
+            1173.63
+          ]
+        }
+      },
+      "W6C": {
+        "stats2024": {
+          "count": 229,
+          "mean": 547.31,
+          "median": 280,
+          "min": 25,
+          "max": 5451,
+          "q1": 166,
+          "q3": 663,
+          "iqr": 497,
+          "stdDev": 663.63,
+          "ci95": [
+            461.35,
+            633.26
+          ]
+        },
+        "stats2025": {
+          "count": 184,
+          "mean": 991.47,
+          "median": 878,
+          "min": 37,
+          "max": 4100,
+          "q1": 343,
+          "q3": 1460,
+          "iqr": 1117,
+          "stdDev": 796.70,
+          "ci95": [
+            876.35,
+            1106.58
+          ]
+        }
+      },
+      "W6D": {
+        "stats2024": {
+          "count": 60,
+          "mean": 728.58,
+          "median": 479,
+          "min": 80,
+          "max": 5505,
+          "q1": 222,
+          "q3": 865,
+          "iqr": 643,
+          "stdDev": 934.21,
+          "ci95": [
+            492.20,
+            964.97
+          ]
+        },
+        "stats2025": {
+          "count": 195,
+          "mean": 780.46,
+          "median": 452,
+          "min": 37,
+          "max": 4476,
+          "q1": 221,
+          "q3": 1272,
+          "iqr": 1051,
+          "stdDev": 757.70,
+          "ci95": [
+            674.11,
+            886.81
+          ]
+        }
+      }
     },
-    "extendedWaits": {
-      "chiSquare": 183.2547,
-      "pValue": 0.0001,
-      "oddsRatio": 7.12,
-      "confidenceInterval": [4.89, 10.37],
-      "proportion2024": 4.39,
-      "proportion2025": 24.62,
-      "proportionDifference": 20.23,
-      "proportionConfidenceInterval": [16.66, 23.53]
-    }
+    "histogram": [
+      {
+        "bin": "0-4h",
+        "count2024": 363,
+        "count2025": 149,
+        "percent2024": 45.5,
+        "percent2025": 19.0
+      },
+      {
+        "bin": "4-8h",
+        "count2024": 200,
+        "count2025": 159,
+        "percent2024": 25.1,
+        "percent2025": 20.3
+      },
+      {
+        "bin": "8-12h",
+        "count2024": 107,
+        "count2025": 73,
+        "percent2024": 13.4,
+        "percent2025": 9.3
+      },
+      {
+        "bin": "12-16h",
+        "count2024": 54,
+        "count2025": 72,
+        "percent2024": 6.8,
+        "percent2025": 9.2
+      },
+      {
+        "bin": "16-20h",
+        "count2024": 21,
+        "count2025": 83,
+        "percent2024": 2.6,
+        "percent2025": 10.6
+      },
+      {
+        "bin": "20-24h",
+        "count2024": 18,
+        "count2025": 55,
+        "percent2024": 2.3,
+        "percent2025": 7.0
+      },
+      {
+        "bin": "24-28h",
+        "count2024": 11,
+        "count2025": 48,
+        "percent2024": 1.4,
+        "percent2025": 6.1
+      },
+      {
+        "bin": "28-32h",
+        "count2024": 4,
+        "count2025": 34,
+        "percent2024": 0.5,
+        "percent2025": 4.3
+      },
+      {
+        "bin": "32-36h",
+        "count2024": 4,
+        "count2025": 26,
+        "percent2024": 0.5,
+        "percent2025": 3.3
+      },
+      {
+        "bin": "36-40h",
+        "count2024": 3,
+        "count2025": 31,
+        "percent2024": 0.4,
+        "percent2025": 4.0
+      },
+      {
+        "bin": "40-44h",
+        "count2024": 3,
+        "count2025": 22,
+        "percent2024": 0.4,
+        "percent2025": 2.8
+      },
+      {
+        "bin": "44-48h",
+        "count2024": 4,
+        "count2025": 15,
+        "percent2024": 0.5,
+        "percent2025": 1.9
+      },
+      {
+        "bin": "48h+",
+        "count2024": 6,
+        "count2025": 17,
+        "percent2024": 0.8,
+        "percent2025": 2.2
+      }
+    ],
+    "thresholds": [
+      {
+        "threshold": "4 hours",
+        "minutes": 240,
+        "within2024": {
+          "count": 363,
+          "percent": 45.5
+        },
+        "within2025": {
+          "count": 149,
+          "percent": 19.0
+        },
+        "exceeding2024": {
+          "count": 435,
+          "percent": 54.5
+        },
+        "exceeding2025": {
+          "count": 635,
+          "percent": 81.0
+        },
+        "percentagePointChange": -26.5
+      },
+      {
+        "threshold": "6 hours",
+        "minutes": 360,
+        "within2024": {
+          "count": 488,
+          "percent": 61.2
+        },
+        "within2025": {
+          "count": 243,
+          "percent": 31.0
+        },
+        "exceeding2024": {
+          "count": 310,
+          "percent": 38.8
+        },
+        "exceeding2025": {
+          "count": 541,
+          "percent": 69.0
+        },
+        "percentagePointChange": -30.2
+      },
+      {
+        "threshold": "12 hours",
+        "minutes": 720,
+        "within2024": {
+          "count": 670,
+          "percent": 84.0
+        },
+        "within2025": {
+          "count": 381,
+          "percent": 48.6
+        },
+        "exceeding2024": {
+          "count": 128,
+          "percent": 16.0
+        },
+        "exceeding2025": {
+          "count": 403,
+          "percent": 51.4
+        },
+        "percentagePointChange": -35.4
+      },
+      {
+        "threshold": "24 hours",
+        "minutes": 1440,
+        "within2024": {
+          "count": 763,
+          "percent": 95.6
+        },
+        "within2025": {
+          "count": 591,
+          "percent": 75.4
+        },
+        "exceeding2024": {
+          "count": 35,
+          "percent": 4.4
+        },
+        "exceeding2025": {
+          "count": 193,
+          "percent": 24.6
+        },
+        "percentagePointChange": -20.2
+      }
+    ]
+  },
+  "qualityImprovement": {
+    "keyFindings": [
+      "Median waiting time increased from 271 minutes in 2024 to 765 minutes in 2025, a 182.3% increase.",
+      "The proportion of patients seen within 4 hours decreased from 45.5% to 19.0%.",
+      "The proportion of patients seen within 6 hours decreased from 61.2% to 31.0%.",
+      "The proportion of patients waiting more than 24 hours increased from 4.4% to 24.6%.",
+      "All wards except W6D show substantial increases in median waiting times, with W6B showing the most dramatic increase.",
+      "The interquartile range (IQR) has widened considerably, indicating greater variability in waiting times in 2025.",
+      "W6D had the highest median wait in 2024 (479 min) but in 2025 has the lowest (452 min) among all wards."
+    ],
+    "recommendations": [
+      "Conduct detailed process analysis to identify bottlenecks in the bed allocation system",
+      "Review staffing patterns during peak admission hours",
+      "Implement discharge planning earlier in the patient journey to improve bed availability",
+      "Explore the use of discharge lounges to free up beds earlier in the day",
+      "Regular monitoring of waiting time metrics with targeted interventions for wards showing the greatest delays",
+      "Study practices in W6D that have helped maintain waiting times while other wards saw increases",
+      "Consider implementation of a real-time bed management system to improve allocation efficiency"
+    ]
   }
 }
