@@ -1,4 +1,5 @@
-{
+// Hospital Bed Waiting Time Analysis Data
+var waitingTimeData = {
   "metadata": {
     "totalCases2024": 798,
     "totalCases2025": 784,
@@ -406,4 +407,4 @@
     "Wards W6A, W6B, and W6C show substantial increases in mean waiting times, with W6B experiencing the largest increase (252.6%).",
     "Ward W6D is the only ward that didn't see a significant increase in waiting times."
   ]
-}
+};
