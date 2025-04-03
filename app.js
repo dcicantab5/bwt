@@ -1,165 +1,133 @@
-// Extract React hooks and components from global variables
-const { useState, useEffect } = React;
-const { createRoot } = ReactDOM;
+// Bed Waiting Time Visualization App
+// Loads data from data.json and renders interactive visualizations
 
-// Extract Recharts components from global variable
-const {
-  BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend,
-  ResponsiveContainer, LineChart, Line
-} = Recharts;
+'use strict';
 
-// Main application component
+// Main App Component
 const App = () => {
-  const [data, setData] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(null);
-  const [selectedTab, setSelectedTab] = useState('histogram');
-  const [showStatisticalAnalysis, setShowStatisticalAnalysis] = useState(false);
+  const [data, setData] = React.useState(null);
+  const [loading, setLoading] = React.useState(true);
+  const [error, setError] = React.useState(null);
+  const [selectedTab, setSelectedTab] = React.useState('histogram');
+  const [showStatisticalAnalysis, setShowStatisticalAnalysis] = React.useState(false);
 
-  // Load data on component mount
-  useEffect(() => {
-    // Check if data is loaded every 100ms
-    const checkDataInterval = setInterval(() => {
-      if (window.visualizationData) {
-        setData(window.visualizationData);
+  // Fetch data from data.json
+  React.useEffect(() => {
+    fetch('./data.json')
+      .then(response => {
+        if (!response.ok) {
+          throw new Error(`HTTP error! status: ${response.status}`);
+        }
+        return response.json();
+      })
+      .then(jsonData => {
+        setData(jsonData);
         setLoading(false);
-        clearInterval(checkDataInterval);
-      }
-    }, 100);
-
-    // Set a timeout to stop checking after 10 seconds
-    const timeout = setTimeout(() => {
-      clearInterval(checkDataInterval);
-      if (!window.visualizationData) {
-        setError("Timeout loading data. Please refresh the page.");
+      })
+      .catch(error => {
+        console.error('Error fetching data:', error);
+        setError('Failed to load data. Please try again later.');
         setLoading(false);
-      }
-    }, 10000);
-
-    // Clean up on unmount
-    return () => {
-      clearInterval(checkDataInterval);
-      clearTimeout(timeout);
-    };
+      });
   }, []);
 
-  // Show loading state
-  if (loading) {
-    return (
-      <div className="container mx-auto p-8 text-center">
-        <h1 className="text-2xl font-bold mb-4">Loading Visualization...</h1>
-        <div className="spinner"></div>
-      </div>
-    );
-  }
-
-  // Show error state
-  if (error || !data) {
-    return (
-      <div className="container mx-auto p-8 text-center">
-        <h1 className="text-2xl text-red-600 font-bold mb-4">Error</h1>
-        <p>{error || "Failed to load visualization data"}</p>
-        <button 
-          onClick={() => location.reload()} 
-          className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
-        >
-          Reload Page
-        </button>
-      </div>
-    );
-  }
-
-  // Render the Histogram tab
+  // Histogram Tab
   const renderHistogram = () => {
-    const { histogramData } = data;
-    
+    if (!data || !data.histogramData) return null;
+
     return (
       <div className="w-full p-4">
         <h3 className="text-lg font-medium mb-2">Waiting Time Distribution (% of Cases)</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <BarChart
-            data={histogramData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis dataKey="bin" />
-            <YAxis label={{ value: 'Percentage of Cases (%)', angle: -90, position: 'insideLeft' }} />
-            <Tooltip 
-              formatter={(value, name) => {
-                if (name === "percent2024") return [`${value}%`, "Feb 2024"];
-                if (name === "percent2025") return [`${value}%`, "Feb 2025"];
-                return [value, name];
-              }}
-            />
-            <Legend />
-            <Bar dataKey="percent2024" name="Feb 2024" fill="#8884d8" />
-            <Bar dataKey="percent2025" name="Feb 2025" fill="#82ca9d" />
-          </BarChart>
-        </ResponsiveContainer>
-        
-        <div className="mt-8">
-          <h3 className="text-lg font-medium mb-2">Waiting Time Distribution (Number of Cases)</h3>
-          <ResponsiveContainer width="100%" height={400}>
+        <div className="h-96">
+          <ResponsiveContainer width="100%" height="100%">
             <BarChart
-              data={histogramData}
+              data={data.histogramData}
               margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
             >
               <CartesianGrid strokeDasharray="3 3" />
               <XAxis dataKey="bin" />
-              <YAxis label={{ value: 'Number of Cases', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
+              <YAxis label={{ value: 'Percentage of Cases (%)', angle: -90, position: 'insideLeft' }} />
+              <Tooltip 
+                formatter={(value, name) => {
+                  if (name === "percent2024") return [`${value}%`, "Feb 2024"];
+                  if (name === "percent2025") return [`${value}%`, "Feb 2025"];
+                  return [value, name];
+                }}
+              />
               <Legend />
-              <Bar dataKey="count2024" name="Feb 2024" fill="#8884d8" />
-              <Bar dataKey="count2025" name="Feb 2025" fill="#82ca9d" />
+              <Bar dataKey="percent2024" name="Feb 2024" fill="#8884d8" />
+              <Bar dataKey="percent2025" name="Feb 2025" fill="#82ca9d" />
             </BarChart>
+          </ResponsiveContainer>
+        </div>
+        
+        <div className="mt-8">
+          <h3 className="text-lg font-medium mb-2">Waiting Time Distribution (Number of Cases)</h3>
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={data.histogramData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="bin" />
+                <YAxis label={{ value: 'Number of Cases', angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count2024" name="Feb 2024" fill="#8884d8" />
+                <Bar dataKey="count2025" name="Feb 2025" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  // Density Plot Tab
+  const renderDensityPlot = () => {
+    if (!data || !data.densityData) return null;
+
+    return (
+      <div className="w-full p-4">
+        <h3 className="text-lg font-medium mb-2">Density Distribution of Waiting Times</h3>
+        <div className="h-96">
+          <ResponsiveContainer width="100%" height="100%">
+            <LineChart
+              data={data.densityData}
+              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+            >
+              <CartesianGrid strokeDasharray="3 3" />
+              <XAxis 
+                dataKey="duration" 
+                label={{ value: 'Duration (minutes)', position: 'insideBottom', offset: -5 }} 
+                domain={[0, 5000]}
+                tickFormatter={(value) => `${Math.round(value/60)}h`}
+              />
+              <YAxis label={{ value: 'Density', angle: -90, position: 'insideLeft' }} />
+              <Tooltip 
+                formatter={(value, name) => [value.toFixed(2), name]}
+                labelFormatter={(value) => `${Math.floor(value/60)}h ${value%60}m`}
+              />
+              <Legend />
+              <Line type="monotone" dataKey="density2024" name="Feb 2024" stroke="#8884d8" dot={false} />
+              <Line type="monotone" dataKey="density2025" name="Feb 2025" stroke="#82ca9d" dot={false} />
+            </LineChart>
           </ResponsiveContainer>
         </div>
       </div>
     );
   };
 
-  // Render the Density Plot tab
-  const renderDensityPlot = () => {
-    const { densityData } = data;
-    
-    return (
-      <div className="w-full p-4">
-        <h3 className="text-lg font-medium mb-2">Density Distribution of Waiting Times</h3>
-        <ResponsiveContainer width="100%" height={400}>
-          <LineChart
-            data={densityData}
-            margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-          >
-            <CartesianGrid strokeDasharray="3 3" />
-            <XAxis 
-              dataKey="duration" 
-              label={{ value: 'Duration (minutes)', position: 'insideBottom', offset: -5 }} 
-              domain={[0, 5000]}
-              tickFormatter={(value) => `${Math.round(value/60)}h`}
-            />
-            <YAxis label={{ value: 'Density', angle: -90, position: 'insideLeft' }} />
-            <Tooltip 
-              formatter={(value, name) => [value.toFixed(2), name]}
-              labelFormatter={(value) => `${Math.floor(value/60)}h ${value%60}m`}
-            />
-            <Legend />
-            <Line type="monotone" dataKey="density2024" name="Feb 2024" stroke="#8884d8" dot={false} />
-            <Line type="monotone" dataKey="density2025" name="Feb 2025" stroke="#82ca9d" dot={false} />
-          </LineChart>
-        </ResponsiveContainer>
-      </div>
-    );
-  };
-
-  // Render the Box Plot tab
+  // Box Plot Tab
   const renderBoxPlot = () => {
-    const { boxPlotData } = data;
-    
+    if (!data || !data.boxPlotData) return null;
+
     return (
       <div className="w-full p-4">
         <h3 className="text-lg font-medium mb-2">Box Plot Comparison</h3>
         <div className="flex flex-wrap">
-          {boxPlotData.map((item, index) => (
+          {data.boxPlotData.map((item, index) => (
             <div key={index} className="w-full md:w-1/2 p-4">
               <h4 className="text-center mb-2 font-medium">February {item.year}</h4>
               <div className="bg-gray-100 p-4 rounded-lg">
@@ -236,21 +204,35 @@ const App = () => {
                 </tr>
               </thead>
               <tbody>
-                {boxPlotData.length === 2 && (
+                {data.boxPlotData.length === 2 && (
                   <>
                     <tr>
                       <td className="py-2 px-4 border font-medium">Median</td>
-                      <td className="py-2 px-4 border">{boxPlotData[0].median}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].median}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].median - boxPlotData[0].median}</td>
-                      <td className="py-2 px-4 border">{((boxPlotData[1].median - boxPlotData[0].median) / boxPlotData[0].median * 100).toFixed(1)}%</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[0].median}</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[1].median}</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[1].median - data.boxPlotData[0].median}</td>
+                      <td className="py-2 px-4 border">{((data.boxPlotData[1].median - data.boxPlotData[0].median) / data.boxPlotData[0].median * 100).toFixed(1)}%</td>
                     </tr>
                     <tr>
                       <td className="py-2 px-4 border font-medium">Mean</td>
-                      <td className="py-2 px-4 border">{boxPlotData[0].mean.toFixed(1)}</td>
-                      <td className="py-2 px-4 border">{boxPlotData[1].mean.toFixed(1)}</td>
-                      <td className="py-2 px-4 border">{(boxPlotData[1].mean - boxPlotData[0].mean).toFixed(1)}</td>
-                      <td className="py-2 px-4 border">{((boxPlotData[1].mean - boxPlotData[0].mean) / boxPlotData[0].mean * 100).toFixed(1)}%</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[0].mean.toFixed(1)}</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[1].mean.toFixed(1)}</td>
+                      <td className="py-2 px-4 border">{(data.boxPlotData[1].mean - data.boxPlotData[0].mean).toFixed(1)}</td>
+                      <td className="py-2 px-4 border">{((data.boxPlotData[1].mean - data.boxPlotData[0].mean) / data.boxPlotData[0].mean * 100).toFixed(1)}%</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-4 border font-medium">Q1 (25th percentile)</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[0].q1}</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[1].q1}</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[1].q1 - data.boxPlotData[0].q1}</td>
+                      <td className="py-2 px-4 border">{((data.boxPlotData[1].q1 - data.boxPlotData[0].q1) / data.boxPlotData[0].q1 * 100).toFixed(1)}%</td>
+                    </tr>
+                    <tr>
+                      <td className="py-2 px-4 border font-medium">Q3 (75th percentile)</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[0].q3}</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[1].q3}</td>
+                      <td className="py-2 px-4 border">{data.boxPlotData[1].q3 - data.boxPlotData[0].q3}</td>
+                      <td className="py-2 px-4 border">{((data.boxPlotData[1].q3 - data.boxPlotData[0].q3) / data.boxPlotData[0].q3 * 100).toFixed(1)}%</td>
                     </tr>
                   </>
                 )}
@@ -262,120 +244,239 @@ const App = () => {
     );
   };
 
-  // Render the Ward Comparison tab
+  // Ward Comparison Tab
   const renderWardComparison = () => {
-    const { wardData } = data;
+    if (!data || !data.wardData) return null;
+
+    // Create data for bar chart comparison
+    const prepareWardData = () => {
+      return Object.keys(data.wardData).map(ward => {
+        const wardInfo = data.wardData[ward];
+        return {
+          ward,
+          mean2024: wardInfo.stats2024 ? wardInfo.stats2024.mean : 0,
+          mean2025: wardInfo.stats2025 ? wardInfo.stats2025.mean : 0,
+          median2024: wardInfo.stats2024 ? wardInfo.stats2024.median : 0,
+          median2025: wardInfo.stats2025 ? wardInfo.stats2025.median : 0,
+          count2024: wardInfo.stats2024 ? wardInfo.stats2024.count : 0,
+          count2025: wardInfo.stats2025 ? wardInfo.stats2025.count : 0
+        };
+      });
+    };
+    
+    const wardChartData = prepareWardData();
     
     return (
       <div className="w-full p-4">
         <h3 className="text-lg font-medium mb-2">Ward-Specific Comparison</h3>
         <div className="mb-8">
           <h4 className="text-md mb-2">Mean Waiting Time by Ward</h4>
-          <ResponsiveContainer width="100%" height={400}>
-            <BarChart
-              data={wardData}
-              margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-            >
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="ward" />
-              <YAxis label={{ value: 'Mean Duration (minutes)', angle: -90, position: 'insideLeft' }} />
-              <Tooltip />
-              <Legend />
-              <Bar dataKey="mean2024" name="Feb 2024" fill="#8884d8" />
-              <Bar dataKey="mean2025" name="Feb 2025" fill="#82ca9d" />
-            </BarChart>
-          </ResponsiveContainer>
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={wardChartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="ward" />
+                <YAxis label={{ value: 'Mean Duration (minutes)', angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="mean2024" name="Feb 2024" fill="#8884d8" />
+                <Bar dataKey="mean2025" name="Feb 2025" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        
+        <div className="mb-8">
+          <h4 className="text-md mb-2">Median Waiting Time by Ward</h4>
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={wardChartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="ward" />
+                <YAxis label={{ value: 'Median Duration (minutes)', angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="median2024" name="Feb 2024" fill="#8884d8" />
+                <Bar dataKey="median2025" name="Feb 2025" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
+        </div>
+        
+        <div>
+          <h4 className="text-md mb-2">Number of Cases by Ward</h4>
+          <div className="h-96">
+            <ResponsiveContainer width="100%" height="100%">
+              <BarChart
+                data={wardChartData}
+                margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
+              >
+                <CartesianGrid strokeDasharray="3 3" />
+                <XAxis dataKey="ward" />
+                <YAxis label={{ value: 'Number of Cases', angle: -90, position: 'insideLeft' }} />
+                <Tooltip />
+                <Legend />
+                <Bar dataKey="count2024" name="Feb 2024" fill="#8884d8" />
+                <Bar dataKey="count2025" name="Feb 2025" fill="#82ca9d" />
+              </BarChart>
+            </ResponsiveContainer>
+          </div>
         </div>
       </div>
     );
   };
 
-  // Function to render the Statistical Analysis tab
+  // Statistical Analysis Tab
   const renderStatisticalAnalysis = () => {
-    const { statisticalAnalysis } = data;
-    
+    if (!data) return null;
+
     return (
-      <div className="w-full p-4 overflow-auto">
+      <div className="w-full p-4">
+        <h3 className="text-xl font-bold mb-4">Statistical Analysis Summary</h3>
         <div className="prose max-w-none">
-          <h1 className="text-2xl font-bold mb-4">Statistical Analysis of Waiting Time Differences</h1>
-          <h2 className="text-xl font-semibold mb-3">February 2024 vs February 2025</h2>
+          <p className="mb-4">Analysis of the waiting time data reveals statistically significant differences between February 2024 and February 2025:</p>
           
-          {/* Statistical content from data.json rendered as HTML */}
-          <div dangerouslySetInnerHTML={{ __html: statisticalAnalysis.html }} />
+          <ul className="list-disc pl-5 space-y-2 mb-4">
+            {data.insights && data.insights.map((insight, index) => (
+              <li key={index}>{insight}</li>
+            ))}
+          </ul>
+          
+          <p className="mb-4">These findings demonstrate a clear and statistically significant deterioration in bed waiting times between February 2024 and February 2025.</p>
+          
+          <h4 className="text-lg font-semibold mt-6 mb-2">Most Significant Changes</h4>
+          
+          <div className="overflow-x-auto mb-4">
+            <table className="min-w-full bg-white border border-gray-300">
+              <thead>
+                <tr className="bg-gray-100">
+                  <th className="py-2 px-4 border">Metric</th>
+                  <th className="py-2 px-4 border">Feb 2024</th>
+                  <th className="py-2 px-4 border">Feb 2025</th>
+                  <th className="py-2 px-4 border">% Change</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="py-2 px-4 border">Median wait time</td>
+                  <td className="py-2 px-4 border">{data.boxPlotData[0].median} min</td>
+                  <td className="py-2 px-4 border">{data.boxPlotData[1].median} min</td>
+                  <td className="py-2 px-4 border font-bold">{((data.boxPlotData[1].median - data.boxPlotData[0].median) / data.boxPlotData[0].median * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td className="py-2 px-4 border">% of patients seen within 4h</td>
+                  <td className="py-2 px-4 border">{data.histogramData[0].percent2024}%</td>
+                  <td className="py-2 px-4 border">{data.histogramData[0].percent2025}%</td>
+                  <td className="py-2 px-4 border font-bold">{((data.histogramData[0].percent2025 - data.histogramData[0].percent2024) / data.histogramData[0].percent2024 * 100).toFixed(1)}%</td>
+                </tr>
+                <tr>
+                  <td className="py-2 px-4 border">Ward with largest increase</td>
+                  <td className="py-2 px-4 border">W6B: {data.wardData.W6B.stats2024.mean} min</td>
+                  <td className="py-2 px-4 border">W6B: {data.wardData.W6B.stats2025.mean} min</td>
+                  <td className="py-2 px-4 border font-bold">{data.wardData.W6B.comparison.meanChangePercent}%</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
         </div>
       </div>
     );
   };
+
+  if (loading) {
+    return (
+      <div className="p-4 text-center">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500 mx-auto"></div>
+        <p className="mt-4">Loading data...</p>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+        <strong className="font-bold">Error!</strong>
+        <span className="block sm:inline"> {error}</span>
+      </div>
+    );
+  }
 
   return (
-    <div className="container mx-auto">
-      <div className="bg-white rounded-lg shadow p-4 mb-8">
-        <h1 className="text-2xl font-bold mb-2 text-center">Hospital Bed Waiting Time Analysis</h1>
-        <h2 className="text-xl mb-6 text-center text-gray-600">February 2024 vs February 2025</h2>
-        
-        <div className="flex flex-wrap border-b mb-4">
-          <button 
-            className={`px-4 py-2 ${selectedTab === 'histogram' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-            onClick={() => {setSelectedTab('histogram'); setShowStatisticalAnalysis(false);}}
-          >
-            Histogram
-          </button>
-          <button 
-            className={`px-4 py-2 ${selectedTab === 'density' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-            onClick={() => {setSelectedTab('density'); setShowStatisticalAnalysis(false);}}
-          >
-            Density Plot
-          </button>
-          <button 
-            className={`px-4 py-2 ${selectedTab === 'boxplot' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-            onClick={() => {setSelectedTab('boxplot'); setShowStatisticalAnalysis(false);}}
-          >
-            Box Plot
-          </button>
-          <button 
-            className={`px-4 py-2 ${selectedTab === 'wards' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-            onClick={() => {setSelectedTab('wards'); setShowStatisticalAnalysis(false);}}
-          >
-            By Ward
-          </button>
-          <button 
-            className={`px-4 py-2 ${showStatisticalAnalysis ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-            onClick={() => setShowStatisticalAnalysis(true)}
-          >
-            Statistical Analysis
-          </button>
-        </div>
-        
-        {!showStatisticalAnalysis && selectedTab === 'histogram' && renderHistogram()}
-        {!showStatisticalAnalysis && selectedTab === 'density' && renderDensityPlot()}
-        {!showStatisticalAnalysis && selectedTab === 'boxplot' && renderBoxPlot()}
-        {!showStatisticalAnalysis && selectedTab === 'wards' && renderWardComparison()}
-        {showStatisticalAnalysis && renderStatisticalAnalysis()}
-        
-        <div className="mt-6 bg-gray-50 p-4 rounded border">
-          <h3 className="font-medium mb-2">Key Observations:</h3>
-          <ul className="list-disc pl-5 space-y-1">
-            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 45.49% in 2024 to only 19.01% in 2025.</li>
-            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 61.15% in 2024 to only 30.99% in 2025.</li>
-            <li>Median waiting times more than doubled from 270 minutes in 2024 to 764 minutes in 2025.</li>
-            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 4.39% in 2024 to over 24.62% in 2025.</li>
-            <li>All wards showed substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
-          </ul>
-        </div>
+    <div className="bg-white rounded-lg shadow p-4 max-w-6xl mx-auto">
+      <h2 className="text-xl font-bold mb-6 text-center">Bed Waiting Time Distribution: February 2024 vs 2025</h2>
+      
+      <div className="flex flex-wrap border-b mb-4">
+        <button 
+          className={`px-4 py-2 ${selectedTab === 'histogram' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
+          onClick={() => {setSelectedTab('histogram'); setShowStatisticalAnalysis(false);}}
+        >
+          Histogram
+        </button>
+        <button 
+          className={`px-4 py-2 ${selectedTab === 'density' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
+          onClick={() => {setSelectedTab('density'); setShowStatisticalAnalysis(false);}}
+        >
+          Density Plot
+        </button>
+        <button 
+          className={`px-4 py-2 ${selectedTab === 'boxplot' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
+          onClick={() => {setSelectedTab('boxplot'); setShowStatisticalAnalysis(false);}}
+        >
+          Box Plot
+        </button>
+        <button 
+          className={`px-4 py-2 ${selectedTab === 'wards' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
+          onClick={() => {setSelectedTab('wards'); setShowStatisticalAnalysis(false);}}
+        >
+          By Ward
+        </button>
+        <button 
+          className={`px-4 py-2 ${showStatisticalAnalysis ? 'border-b-2 border-blue-500 font-medium' : ''}`}
+          onClick={() => setShowStatisticalAnalysis(true)}
+        >
+          Statistical Analysis
+        </button>
       </div>
       
-      <footer className="mt-8 text-center text-gray-500 text-sm pb-8">
-        <p>Data visualization of hospital bed waiting times.</p>
-        <p className="mt-2">© 2025 Hospital Analytics Team</p>
+      {!showStatisticalAnalysis && selectedTab === 'histogram' && renderHistogram()}
+      {!showStatisticalAnalysis && selectedTab === 'density' && renderDensityPlot()}
+      {!showStatisticalAnalysis && selectedTab === 'boxplot' && renderBoxPlot()}
+      {!showStatisticalAnalysis && selectedTab === 'wards' && renderWardComparison()}
+      {showStatisticalAnalysis && renderStatisticalAnalysis()}
+      
+      <div className="mt-6 bg-gray-50 p-4 rounded border">
+        <h3 className="font-medium mb-2">Key Observations:</h3>
+        <ul className="list-disc pl-5 space-y-1">
+          {data && data.insights && data.insights.slice(0, 5).map((insight, index) => (
+            <li key={index}>{insight}</li>
+          ))}
+        </ul>
+      </div>
+      
+      <footer className="mt-8 text-center text-gray-500 text-sm">
+        <p>Data updated: {data && data.metadata ? data.metadata.dataUpdated : ''}</p>
+        <p className="mt-1">Total cases analyzed: 2024 ({data && data.metadata ? data.metadata.totalCases2024 : ''}) | 2025 ({data && data.metadata ? data.metadata.totalCases2025 : ''})</p>
       </footer>
     </div>
   );
 };
 
-// Render the App component once DOM is fully loaded
+// Wait for DOM to be ready, then render the app
 document.addEventListener('DOMContentLoaded', () => {
-  const rootElement = document.getElementById("root");
-  const root = createRoot(rootElement);
-  root.render(<App />);
-});
+  const { useState, useEffect } = React;
+  const { 
+    BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
+    ResponsiveContainer, LineChart, Line
+  } = Recharts;
 
+  ReactDOM.render(
+    <App />,
+    document.getElementById('app')
+  );
+});
