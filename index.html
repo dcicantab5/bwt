@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Bed Waiting Time Analysis (2024-2025)</title>
+  <title>Bed Waiting Time Distribution: February 2024 vs 2025 (4-Hour Intervals)</title>
   <link href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.9.1/chart.min.js"></script>
   <style>
@@ -11,7 +11,7 @@
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
       color: #333;
       line-height: 1.6;
-      background-color: #f8f9fa;
+      background-color: #ffffff;
       padding: 20px 0;
     }
     
@@ -23,24 +23,25 @@
     
     .nav-tabs {
       margin-bottom: 30px;
-      justify-content: center;
+      justify-content: flex-start;
       border-bottom: 1px solid #dee2e6;
     }
     
     .nav-tabs .nav-link {
-      border-radius: 0.5rem 0.5rem 0 0;
-      padding: 8px 20px;
+      border-radius: 0;
+      padding: 12px 20px;
       font-weight: 500;
       color: #495057;
-      margin-right: 5px;
-      background-color: #f0f0f0;
-      border: 1px solid #dee2e6;
+      margin-right: 0;
+      background-color: transparent;
+      border: none;
+      border-bottom: 3px solid transparent;
     }
     
     .nav-tabs .nav-link.active {
-      background-color: #4361ee;
-      color: white;
-      border-color: #4361ee;
+      background-color: transparent;
+      color: #3f51b5;
+      border-bottom: 3px solid #3f51b5;
     }
     
     .tab-content {
@@ -64,8 +65,7 @@
     .section-title {
       margin-bottom: 20px;
       font-weight: 500;
-      border-bottom: 1px solid #eee;
-      padding-bottom: 10px;
+      color: #333;
     }
     
     table {
@@ -77,7 +77,7 @@
     th, td {
       padding: 12px 15px;
       text-align: left;
-      border: 1px solid #ddd;
+      border: 1px solid #e2e8f0;
     }
     
     th {
@@ -90,14 +90,7 @@
     }
     
     li {
-      margin-bottom: 8px;
-    }
-    
-    .stat-methods {
-      margin-top: 40px;
-      padding-top: 20px;
-      border-top: 1px solid #eee;
-      color: #666;
+      margin-bottom: 12px;
     }
     
     #loadingSpinner {
@@ -113,54 +106,87 @@
       z-index: 9999;
     }
     
-    .year-comparison-card {
-      background-color: #fff;
-      border-radius: 10px;
-      padding: 20px;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      margin-bottom: 20px;
+    .box-plot-container {
+      width: 100%;
+      padding: 30px;
+      background-color: #f9f9f9;
+      border-radius: 5px;
+      margin-bottom: 30px;
     }
     
-    .metric-card {
-      background-color: #fff;
-      border-radius: 8px;
-      padding: 15px;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+    .box-plot {
+      height: 100px;
+      position: relative;
+      margin-bottom: 40px;
+    }
+    
+    .box-plot-title {
+      text-align: center;
+      font-weight: 500;
       margin-bottom: 15px;
     }
     
-    .metric-card h3 {
-      font-size: 1.1rem;
-      margin-bottom: 10px;
+    .box-plot-axis {
+      position: absolute;
+      height: 2px;
+      background-color: #333;
+      width: 100%;
+      top: 50%;
     }
     
-    .metric-card .value {
-      font-size: 2rem;
-      font-weight: 600;
-      margin-bottom: 5px;
+    .box-plot-box {
+      position: absolute;
+      height: 50px;
+      background-color: #4361ee;
+      top: 25px;
     }
     
-    .metric-card .change {
-      font-size: 0.9rem;
+    .box-plot-median {
+      position: absolute;
+      height: 50px;
+      width: 2px;
+      background-color: white;
+      top: 25px;
     }
     
-    .change-positive {
-      color: #198754;
+    .box-plot-whisker {
+      position: absolute;
+      height: 30px;
+      width: 1px;
+      background-color: #333;
+      top: 35px;
     }
     
-    .change-negative {
-      color: #dc3545;
+    .box-plot-mean {
+      position: absolute;
+      height: 10px;
+      width: 10px;
+      border-radius: 50%;
+      background-color: #dc3545;
+      top: 45px;
+      transform: translateX(-5px);
     }
     
-    .highlight-box {
-      background-color: #f8f9fa;
-      border-left: 4px solid #4361ee;
-      padding: 15px;
-      margin-bottom: 20px;
+    .box-plot-label {
+      position: absolute;
+      font-size: 12px;
+      color: #666;
+      transform: translateX(-50%);
+      bottom: -25px;
     }
     
-    .observations {
+    .key-observations {
+      background-color: #f9f9f9;
+      border-left: 4px solid #3f51b5;
+      padding: 20px;
       margin-top: 30px;
+    }
+    
+    .key-observations h3 {
+      margin-top: 0;
+      margin-bottom: 15px;
+      font-size: 18px;
+      font-weight: 500;
     }
     
     footer {
@@ -179,350 +205,211 @@
   </div>
 
   <div class="container">
-    <h1>Bed Waiting Time Analysis (2024-2025)</h1>
+    <h1>Bed Waiting Time Distribution: February 2024 vs 2025 (4-Hour Intervals)</h1>
     
     <ul class="nav nav-tabs" id="analysisTab" role="tablist">
       <li class="nav-item" role="presentation">
-        <button class="nav-link active" id="overview-tab" data-bs-toggle="tab" data-bs-target="#overview" type="button" role="tab" aria-controls="overview" aria-selected="true">Overview</button>
+        <button class="nav-link active" id="histogram-tab" data-bs-toggle="tab" data-bs-target="#histogram" type="button" role="tab" aria-controls="histogram" aria-selected="true">Histogram</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="histogram-tab" data-bs-toggle="tab" data-bs-target="#histogram" type="button" role="tab" aria-controls="histogram" aria-selected="false">Waiting Time Distribution</button>
+        <button class="nav-link" id="density-tab" data-bs-toggle="tab" data-bs-target="#density" type="button" role="tab" aria-controls="density" aria-selected="false">Density Plot</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="wards-tab" data-bs-toggle="tab" data-bs-target="#wards" type="button" role="tab" aria-controls="wards" aria-selected="false">Ward Comparison</button>
+        <button class="nav-link" id="boxplot-tab" data-bs-toggle="tab" data-bs-target="#boxplot" type="button" role="tab" aria-controls="boxplot" aria-selected="false">Box Plot</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="threshold-tab" data-bs-toggle="tab" data-bs-target="#threshold" type="button" role="tab" aria-controls="threshold" aria-selected="false">Time Standards</button>
+        <button class="nav-link" id="byward-tab" data-bs-toggle="tab" data-bs-target="#byward" type="button" role="tab" aria-controls="byward" aria-selected="false">By Ward</button>
       </li>
       <li class="nav-item" role="presentation">
-        <button class="nav-link" id="findings-tab" data-bs-toggle="tab" data-bs-target="#findings" type="button" role="tab" aria-controls="findings" aria-selected="false">Key Findings</button>
+        <button class="nav-link" id="statistical-tab" data-bs-toggle="tab" data-bs-target="#statistical" type="button" role="tab" aria-controls="statistical" aria-selected="false">Statistical Analysis</button>
       </li>
     </ul>
     
     <div class="tab-content" id="analysisTabContent">
-      <!-- Overview Tab -->
-      <div class="tab-pane fade show active" id="overview" role="tabpanel" aria-labelledby="overview-tab">
-        <div class="row">
-          <div class="col-md-12">
-            <h3 class="section-title">Bed Waiting Times Comparison</h3>
-            <p>This analysis compares bed waiting times between February 2024 and February 2025. The waiting time is measured in minutes from when a patient is assigned to a ward until they arrive at the ward.</p>
-          </div>
-        </div>
-        
-        <div class="row">
-          <div class="col-md-6">
-            <div class="year-comparison-card">
-              <h4>February 2024</h4>
-              <div class="chart-container-small">
-                <canvas id="summary2024Chart"></canvas>
-              </div>
-              <div class="row mt-3">
-                <div class="col-6">
-                  <div class="metric-card text-center">
-                    <h3>Median Wait</h3>
-                    <div class="value" id="median2024">--</div>
-                    <div class="text-muted">Minutes (4.5 hours)</div>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="metric-card text-center">
-                    <h3>Patients</h3>
-                    <div class="value" id="count2024">--</div>
-                    <div class="text-muted">Total cases</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-          
-          <div class="col-md-6">
-            <div class="year-comparison-card">
-              <h4>February 2025</h4>
-              <div class="chart-container-small">
-                <canvas id="summary2025Chart"></canvas>
-              </div>
-              <div class="row mt-3">
-                <div class="col-6">
-                  <div class="metric-card text-center">
-                    <h3>Median Wait</h3>
-                    <div class="value" id="median2025">--</div>
-                    <div class="text-muted">Minutes (12.8 hours)</div>
-                  </div>
-                </div>
-                <div class="col-6">
-                  <div class="metric-card text-center">
-                    <h3>Patients</h3>
-                    <div class="value" id="count2025">--</div>
-                    <div class="text-muted">Total cases</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <div class="highlight-box">
-              <h4>Key Metrics Comparison</h4>
-              <div class="row mt-3">
-                <div class="col-md-3 col-6">
-                  <div class="metric-card text-center">
-                    <h3>Median Change</h3>
-                    <div class="value change-negative" id="medianChange">+494</div>
-                    <div class="change change-negative">+182.3%</div>
-                  </div>
-                </div>
-                <div class="col-md-3 col-6">
-                  <div class="metric-card text-center">
-                    <h3>Mean Change</h3>
-                    <div class="value change-negative" id="meanChange">+525.6</div>
-                    <div class="change change-negative">+116.6%</div>
-                  </div>
-                </div>
-                <div class="col-md-3 col-6">
-                  <div class="metric-card text-center">
-                    <h3>4-hour Standard</h3>
-                    <div class="value change-negative" id="fourHourChange">-26.5%</div>
-                    <div class="change">Percentage points</div>
-                  </div>
-                </div>
-                <div class="col-md-3 col-6">
-                  <div class="metric-card text-center">
-                    <h3>24-hour Wait</h3>
-                    <div class="value change-negative" id="twentyFourHourChange">+20.2%</div>
-                    <div class="change">Percentage points</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Waiting Time Statistics by Year</h3>
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Statistic</th>
-                  <th>Feb 2024</th>
-                  <th>Feb 2025</th>
-                  <th>Change</th>
-                  <th>% Change</th>
-                </tr>
-              </thead>
-              <tbody id="statsTable">
-                <!-- Will be populated by JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Patient Distribution by Ward</h3>
-            <div class="row">
-              <div class="col-md-6">
-                <div class="chart-container-small">
-                  <canvas id="patientDistribution2024Chart"></canvas>
-                </div>
-              </div>
-              <div class="col-md-6">
-                <div class="chart-container-small">
-                  <canvas id="patientDistribution2025Chart"></canvas>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      
       <!-- Histogram Tab -->
-      <div class="tab-pane fade" id="histogram" role="tabpanel" aria-labelledby="histogram-tab">
+      <div class="tab-pane fade show active" id="histogram" role="tabpanel" aria-labelledby="histogram-tab">
         <h3 class="section-title">Waiting Time Distribution (% of Cases)</h3>
-        <p>This chart shows the distribution of waiting times in 4-hour intervals, comparing February 2024 to February 2025.</p>
-        
         <div class="chart-container">
           <canvas id="histogramPercentChart"></canvas>
         </div>
         
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Waiting Time Distribution (Number of Cases)</h3>
-            <div class="chart-container">
-              <canvas id="histogramCountChart"></canvas>
-            </div>
+        <div class="mt-5">
+          <h3 class="section-title">Waiting Time Distribution (Number of Cases)</h3>
+          <div class="chart-container">
+            <canvas id="histogramCountChart"></canvas>
           </div>
         </div>
         
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Distribution Data</h3>
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Time Range</th>
-                  <th>Cases 2024</th>
-                  <th>% in 2024</th>
-                  <th>Cases 2025</th>
-                  <th>% in 2025</th>
-                  <th>% Point Change</th>
-                </tr>
-              </thead>
-              <tbody id="histogramTable">
-                <!-- Will be populated by JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <div class="highlight-box">
-              <h4>Key Observations:</h4>
-              <ul>
-                <li>The proportion of patients with waits under 4 hours decreased from 45.5% in 2024 to only 19.0% in 2025.</li>
-                <li>The proportion of patients with waits over 24 hours increased from 4.4% in 2024 to 24.6% in 2025.</li>
-                <li>In 2024, the distribution is concentrated in the shorter time ranges, while in 2025 it's more spread out across longer waiting times.</li>
-                <li>The most dramatic increase is seen in the 16-20 hour range, increasing from 2.6% to 10.6% of cases.</li>
-              </ul>
-            </div>
-          </div>
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul id="histogramObservations">
+            <!-- Will be populated by JavaScript -->
+          </ul>
         </div>
       </div>
       
-      <!-- Wards Tab -->
-      <div class="tab-pane fade" id="wards" role="tabpanel" aria-labelledby="wards-tab">
-        <h3 class="section-title">Ward Comparison - Median Waiting Times</h3>
-        <p>This chart compares the median waiting times across all wards between February 2024 and February 2025.</p>
+      <!-- Density Plot Tab -->
+      <div class="tab-pane fade" id="density" role="tabpanel" aria-labelledby="density-tab">
+        <h3 class="section-title">Density Distribution of Waiting Times</h3>
+        <div class="chart-container">
+          <canvas id="densityChart"></canvas>
+        </div>
         
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul id="densityObservations">
+            <!-- Will be populated by JavaScript -->
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Box Plot Tab -->
+      <div class="tab-pane fade" id="boxplot" role="tabpanel" aria-labelledby="boxplot-tab">
+        <h3 class="section-title">Box Plot Comparison</h3>
+        
+        <div class="box-plot-container">
+          <h4 class="box-plot-title">February 2024</h4>
+          <div id="boxPlot2024" class="box-plot">
+            <!-- Will be populated by JavaScript -->
+          </div>
+          
+          <h4 class="box-plot-title mt-5">February 2025</h4>
+          <div id="boxPlot2025" class="box-plot">
+            <!-- Will be populated by JavaScript -->
+          </div>
+        </div>
+        
+        <h3 class="section-title">Key Statistics Comparison</h3>
+        <div class="table-responsive">
+          <table class="table table-striped">
+            <thead>
+              <tr>
+                <th>Statistic</th>
+                <th>Feb 2024</th>
+                <th>Feb 2025</th>
+                <th>Change</th>
+                <th>% Change</th>
+              </tr>
+            </thead>
+            <tbody id="keyStatsTable">
+              <!-- Will be populated by JavaScript -->
+            </tbody>
+          </table>
+        </div>
+        
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul id="boxPlotObservations">
+            <!-- Will be populated by JavaScript -->
+          </ul>
+        </div>
+      </div>
+      
+      <!-- By Ward Tab -->
+      <div class="tab-pane fade" id="byward" role="tabpanel" aria-labelledby="byward-tab">
+        <h3 class="section-title">Ward-Specific Comparison</h3>
+        
+        <h4 class="mt-4">Mean Waiting Time by Ward</h4>
+        <div class="chart-container">
+          <canvas id="wardMeanChart"></canvas>
+        </div>
+        
+        <h4 class="mt-5">Median Waiting Time by Ward</h4>
         <div class="chart-container">
           <canvas id="wardMedianChart"></canvas>
         </div>
         
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Ward Comparison - Mean Waiting Times</h3>
-            <div class="chart-container">
-              <canvas id="wardMeanChart"></canvas>
-            </div>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Ward Statistics</h3>
-            <table class="table table-striped">
-              <thead>
-                <tr>
-                  <th>Ward</th>
-                  <th>Count 2024</th>
-                  <th>Count 2025</th>
-                  <th>Median 2024</th>
-                  <th>Median 2025</th>
-                  <th>% Change</th>
-                </tr>
-              </thead>
-              <tbody id="wardStatsTable">
-                <!-- Will be populated by JavaScript -->
-              </tbody>
-            </table>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <div class="highlight-box">
-              <h4>Key Observations:</h4>
-              <ul id="wardObservations">
-                <!-- Will be populated by JavaScript -->
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
-      
-      <!-- Threshold Tab -->
-      <div class="tab-pane fade" id="threshold" role="tabpanel" aria-labelledby="threshold-tab">
-        <h3 class="section-title">Time Standards Compliance</h3>
-        <p>This chart shows the percentage of patients seen within various time standards in February 2024 versus February 2025.</p>
-        
+        <h4 class="mt-5">Number of Cases by Ward</h4>
         <div class="chart-container">
-          <canvas id="thresholdComplianceChart"></canvas>
+          <canvas id="wardCasesChart"></canvas>
         </div>
         
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Time Standards Comparison</h3>
-            <table class="table table-striped">
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul id="byWardObservations">
+            <!-- Will be populated by JavaScript -->
+          </ul>
+        </div>
+      </div>
+      
+      <!-- Statistical Analysis Tab -->
+      <div class="tab-pane fade" id="statistical" role="tabpanel" aria-labelledby="statistical-tab">
+        <h3 class="section-title">Statistical Analysis of Waiting Time Differences</h3>
+        
+        <div class="mt-4">
+          <h4>1. Overall Distribution of Waiting Times</h4>
+          <p>The Mann-Whitney U test was used to compare the overall distribution of waiting times between the two years, without assuming normal distribution.</p>
+          
+          <div class="table-responsive mt-3">
+            <table class="table table-bordered">
               <thead>
-                <tr>
-                  <th>Time Standard</th>
-                  <th>% Within (2024)</th>
-                  <th>% Within (2025)</th>
-                  <th>Change (% points)</th>
-                  <th>% Exceeding (2024)</th>
-                  <th>% Exceeding (2025)</th>
+                <tr class="table-light">
+                  <th>Statistic</th>
+                  <th>Value</th>
                 </tr>
               </thead>
-              <tbody id="thresholdTable">
+              <tbody id="mannWhitneyTable">
                 <!-- Will be populated by JavaScript -->
               </tbody>
             </table>
           </div>
+          
+          <p class="mt-3 fw-semibold">Interpretation: The proportion of patients seen within 4 hours decreased significantly from 45.5% in 2024 to 19.0% in 2025 (p &lt; 0.0001). Patients in 2024 were 3.56 times more likely to be seen within 4 hours than patients in 2025.</p>
+          
+          <h5 class="mt-4">2.2. 6-Hour Standard (360 minutes)</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr class="table-light">
+                  <th>Statistic</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="sixHourTable">
+                <!-- Will be populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+          
+          <p class="mt-3 fw-semibold">Interpretation: The proportion of patients seen within 6 hours decreased significantly from 61.2% in 2024 to 31.0% in 2025 (p &lt; 0.0001). Patients in 2024 were 3.50 times more likely to be seen within 6 hours than patients in 2025.</p>
+          
+          <h5 class="mt-4">2.3. Extended Waits (&gt;24 hours/1440 minutes)</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr class="table-light">
+                  <th>Statistic</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="extendedWaitsTable">
+                <!-- Will be populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+          
+          <p class="mt-3 fw-semibold">Interpretation: The proportion of patients waiting more than 24 hours increased significantly from 4.4% in 2024 to 24.6% in 2025 (p &lt; 0.0001). Patients in 2025 were 7.12 times more likely to experience extended waits over 24 hours compared to 2024.</p>
         </div>
         
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <div class="highlight-box">
-              <h4>Key Observations:</h4>
-              <ul>
-                <li>Compliance with the 4-hour standard fell by 26.5 percentage points from 45.5% to 19.0%.</li>
-                <li>Compliance with the 6-hour standard fell by 30.2 percentage points from 61.2% to 31.0%.</li>
-                <li>Compliance with the 12-hour standard saw the largest drop of 35.4 percentage points from 84.0% to 48.6%.</li>
-                <li>The percentage of patients waiting over 24 hours increased dramatically from 4.4% to 24.6%.</li>
-              </ul>
-            </div>
-          </div>
+        <div class="mt-5">
+          <h4>Summary of Findings</h4>
+          <p>All three statistical methods yield consistent results, providing strong evidence that:</p>
+          <ol>
+            <li>The overall distribution of waiting times in February 2025 was significantly higher than in February 2024.</li>
+            <li>There were statistically significant decreases in the proportions of patients meeting both the 4-hour standard (26.5 percentage point decrease) and the 6-hour standard (30.2 percentage point decrease).</li>
+            <li>There was a statistically significant increase in the proportion of patients experiencing extended waits of over 24 hours (20.2 percentage point increase).</li>
+            <li>The magnitude of these changes is substantial, with the median waiting time increasing by approximately 8 hours (494 minutes).</li>
+          </ol>
+          <p>These findings demonstrate a clear and statistically significant deterioration in bed waiting times between February 2024 and February 2025.</p>
         </div>
       </div>
-      
-      <!-- Key Findings Tab -->
-      <div class="tab-pane fade" id="findings" role="tabpanel" aria-labelledby="findings-tab">
-        <div class="row">
-          <div class="col-md-12">
-            <h3 class="section-title">Key Findings</h3>
-            <ul id="keyFindings">
-              <!-- Will be populated by JavaScript -->
-            </ul>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <h3 class="section-title">Recommendations</h3>
-            <ul id="recommendations">
-              <!-- Will be populated by JavaScript -->
-            </ul>
-          </div>
-        </div>
-        
-        <div class="row mt-4">
-          <div class="col-md-12">
-            <div class="highlight-box">
-              <h4>Statistical Analysis</h4>
-              <p>Statistical analysis of the data shows that:</p>
-              <ul>
-                <li>The median waiting time increase from 2024 to 2025 is statistically significant (p &lt; 0.001)</li>
-                <li>The proportion of patients meeting the 4-hour standard decreased significantly (p &lt; 0.001)</li>
-                <li>The increase in extended waits (over 24 hours) is statistically significant (p &lt; 0.001)</li>
-                <li>All wards except W6D showed statistically significant increases in waiting times (p &lt; 0.001)</li>
-              </ul>
-            </div>
-          </div>
-        </div>
-      </div>
+    </div>
+    
+    <div class="key-observations" id="globalObservations">
+      <h3>Key Observations:</h3>
+      <ul id="globalObservationsList">
+        <!-- Will be populated by JavaScript -->
+      </ul>
     </div>
     
     <footer>
@@ -534,3 +421,39 @@
   <script src="app.js"></script>
 </body>
 </html>
+              </tbody>
+            </table>
+          </div>
+          
+          <p class="mt-3 fw-semibold">Interpretation: There is a highly statistically significant difference in the distribution of waiting times between February 2024 and February 2025 (p &lt; 0.0001). The median waiting time in February 2025 was nearly three times that of February 2024.</p>
+          
+          <h5 class="mt-4">Bootstrap Analysis of Median Difference:</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr class="table-light">
+                  <th>Statistic</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="bootstrapTable">
+                <!-- Will be populated by JavaScript -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        
+        <div class="mt-5">
+          <h4>2. Key Clinical Thresholds</h4>
+          
+          <h5 class="mt-4">2.1. 4-Hour Standard (240 minutes)</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered">
+              <thead>
+                <tr class="table-light">
+                  <th>Statistic</th>
+                  <th>Value</th>
+                </tr>
+              </thead>
+              <tbody id="fourHourTable">
+                <!-- Will be populated by JavaScript -->
