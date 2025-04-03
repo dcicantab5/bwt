@@ -1,4 +1,4 @@
-// Main application script for Bed Waiting Time Distribution Dashboard
+// Main application script for Bed Waiting Time Analysis Dashboard
 document.addEventListener('DOMContentLoaded', function() {
   // Load data
   fetch('data.json')
@@ -22,9 +22,6 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 function initializeDashboard(data) {
-  // Set metadata and update footer
-  displayMetadata(data.metadata);
-  
   // Initialize Histogram Tab
   initializeHistogramTab(data.statistics.histogram);
   
@@ -39,42 +36,12 @@ function initializeDashboard(data) {
   
   // Initialize Statistical Analysis Tab
   initializeStatisticalTab(data.statistics.statAnalysis, data.statistics.overall, data.statistics.thresholds);
-  
-  // Set global observations
-  setGlobalObservations(data.keyObservations);
-}
-
-function displayMetadata(metadata) {
-  // Format and display the generation date
-  const date = new Date(metadata.generatedDate);
-  const formattedDate = date.toLocaleDateString('en-US', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  });
-  document.getElementById('footerDate').textContent = formattedDate;
 }
 
 function initializeHistogramTab(histogramData) {
   // Create histogram charts
   createHistogramChart('histogramPercentChart', histogramData, 'percent');
   createHistogramChart('histogramCountChart', histogramData, 'count');
-  
-  // Set histogram observations
-  const histogramObservations = document.getElementById('histogramObservations');
-  const observations = [
-    "The proportion of patients with waits under 4 hours decreased dramatically from 45.5% in 2024 to only 19.0% in 2025.",
-    "In 2024, the majority of patients (70.6%) waited less than 8 hours, compared to only 39.3% in 2025.",
-    "The proportion of patients waiting 16-24 hours increased from 4.9% in 2024 to 17.6% in 2025.",
-    "The percentage of patients with extremely long waits (over 24 hours) increased from 4.4% in 2024 to 24.6% in 2025.",
-    "The 2024 distribution is heavily skewed toward shorter waiting times, while the 2025 distribution is more spread out across all time intervals."
-  ];
-  
-  observations.forEach(obs => {
-    const li = document.createElement('li');
-    li.textContent = obs;
-    histogramObservations.appendChild(li);
-  });
 }
 
 function createHistogramChart(canvasId, histogramData, type) {
@@ -162,22 +129,6 @@ function createHistogramChart(canvasId, histogramData, type) {
 function initializeDensityTab(densityData) {
   // Create density plot
   createDensityChart('densityChart', densityData);
-  
-  // Set density plot observations
-  const densityObservations = document.getElementById('densityObservations');
-  const observations = [
-    "The 2024 distribution has a single peak at around 4 hours, showing most patients were seen relatively quickly.",
-    "The 2025 distribution is much flatter with less pronounced peaks, indicating greater variability in waiting times.",
-    "In 2024, the density drops sharply after 8 hours, while in 2025 it remains substantial even beyond 24 hours.",
-    "The 2025 distribution shows a secondary peak around 16-18 hours, suggesting a potential bottleneck in the system at this duration.",
-    "The area under the curve past 24 hours (1440 minutes) is significantly larger in 2025, confirming the increase in extended waits."
-  ];
-  
-  observations.forEach(obs => {
-    const li = document.createElement('li');
-    li.textContent = obs;
-    densityObservations.appendChild(li);
-  });
 }
 
 function createDensityChart(canvasId, densityData) {
@@ -239,8 +190,13 @@ function createDensityChart(canvasId, densityData) {
             text: 'Duration (minutes)'
           },
           ticks: {
-            callback: function(value) {
-              return `${Math.floor(value/60)}h`;
+            callback: function(value, index) {
+              // Only show some labels to avoid overcrowding
+              if (index % 4 === 0) {
+                const hours = Math.floor(value / 60);
+                return `${hours}h`;
+              }
+              return '';
             },
             maxRotation: 0
           }
@@ -257,13 +213,23 @@ function createDensityChart(canvasId, densityData) {
         },
         tooltip: {
           callbacks: {
-            title: function(context) {
-              const value = context[0].raw;
-              const minutes = context[0].label;
-              return `${Math.floor(minutes/60)}h ${minutes%60}m`;
+            title: function(tooltipItems) {
+              const duration = tooltipItems[0].parsed.x;
+              const hours = Math.floor(duration / 60);
+              const minutes = duration % 60;
+              return `${hours}h ${minutes}m`;
+            },
+            label: function(context) {
+              const label = context.dataset.label || '';
+              const value = context.parsed.y.toFixed(1);
+              return `${label}: ${value}`;
             }
           }
         }
+      },
+      interaction: {
+        mode: 'nearest',
+        intersect: false
       }
     }
   });
@@ -283,22 +249,6 @@ function initializeBoxPlotTab(overallData) {
   addStatRow(keyStatsTable, 'Q1 (25th percentile)', overallData.stats2024.q1, overallData.stats2025.q1, overallData.comparison.q1Change, overallData.comparison.q1ChangePercent);
   addStatRow(keyStatsTable, 'Q3 (75th percentile)', overallData.stats2024.q3, overallData.stats2025.q3, overallData.comparison.q3Change, overallData.comparison.q3ChangePercent);
   addStatRow(keyStatsTable, 'IQR (Q3-Q1)', overallData.stats2024.iqr, overallData.stats2025.iqr, overallData.comparison.iqrChange, overallData.comparison.iqrChangePercent);
-  
-  // Set box plot observations
-  const boxPlotObservations = document.getElementById('boxPlotObservations');
-  const observations = [
-    "Median waiting time increased from 271 minutes in 2024 to 765 minutes in 2025, a 182.3% increase.",
-    "The interquartile range (IQR) widened substantially from 372 minutes in 2024 to 1124 minutes in 2025, indicating much greater variability in 2025.",
-    "The 75th percentile (Q3) increased by 167.4%, from 534 minutes to 1428 minutes, showing a dramatic shift in the upper range of waiting times.",
-    "Even the 25th percentile (Q1) increased by 87.7%, from 162 minutes to 304 minutes, indicating that even the quicker admissions took longer in 2025.",
-    "The position of the mean relative to the median in both years suggests a right-skewed distribution, with some extremely long waits pulling the mean higher than the median."
-  ];
-  
-  observations.forEach(obs => {
-    const li = document.createElement('li');
-    li.textContent = obs;
-    boxPlotObservations.appendChild(li);
-  });
 }
 
 function createBoxPlot(containerId, stats) {
@@ -323,29 +273,63 @@ function createBoxPlot(containerId, stats) {
   box.className = 'box-plot-box';
   box.style.left = q1Pos + '%';
   box.style.width = (q3Pos - q1Pos) + '%';
+  box.setAttribute('data-bs-toggle', 'tooltip');
+  box.setAttribute('data-bs-placement', 'top');
+  box.setAttribute('title', `IQR: ${stats.q1} to ${stats.q3}`);
   container.appendChild(box);
   
   const median = document.createElement('div');
   median.className = 'box-plot-median';
   median.style.left = medianPos + '%';
+  median.setAttribute('data-bs-toggle', 'tooltip');
+  median.setAttribute('data-bs-placement', 'top');
+  median.setAttribute('title', `Median: ${stats.median}`);
   container.appendChild(median);
   
   const minWhisker = document.createElement('div');
   minWhisker.className = 'box-plot-whisker';
   minWhisker.style.left = minPos + '%';
+  minWhisker.setAttribute('data-bs-toggle', 'tooltip');
+  minWhisker.setAttribute('data-bs-placement', 'top');
+  minWhisker.setAttribute('title', `Min: ${stats.min}`);
   container.appendChild(minWhisker);
   
   const maxWhisker = document.createElement('div');
   maxWhisker.className = 'box-plot-whisker';
   maxWhisker.style.left = maxPos + '%';
+  maxWhisker.setAttribute('data-bs-toggle', 'tooltip');
+  maxWhisker.setAttribute('data-bs-placement', 'top');
+  maxWhisker.setAttribute('title', `Max: ${stats.max > maxVal ? maxVal + '+' : stats.max}`);
   container.appendChild(maxWhisker);
   
   const mean = document.createElement('div');
   mean.className = 'box-plot-mean';
   mean.style.left = meanPos + '%';
+  mean.setAttribute('data-bs-toggle', 'tooltip');
+  mean.setAttribute('data-bs-placement', 'top');
+  mean.setAttribute('title', `Mean: ${stats.mean}`);
   container.appendChild(mean);
   
-  // Add labels
+  // Add whisker lines
+  const minToQ1Line = document.createElement('div');
+  minToQ1Line.style.position = 'absolute';
+  minToQ1Line.style.top = '50px';
+  minToQ1Line.style.height = '1px';
+  minToQ1Line.style.backgroundColor = '#333';
+  minToQ1Line.style.left = minPos + '%';
+  minToQ1Line.style.width = (q1Pos - minPos) + '%';
+  container.appendChild(minToQ1Line);
+  
+  const q3ToMaxLine = document.createElement('div');
+  q3ToMaxLine.style.position = 'absolute';
+  q3ToMaxLine.style.top = '50px';
+  q3ToMaxLine.style.height = '1px';
+  q3ToMaxLine.style.backgroundColor = '#333';
+  q3ToMaxLine.style.left = q3Pos + '%';
+  q3ToMaxLine.style.width = (maxPos - q3Pos) + '%';
+  container.appendChild(q3ToMaxLine);
+  
+  // Add simple label markers at top of plot
   const labels = [
     { pos: minPos, text: 'Min: ' + stats.min },
     { pos: q1Pos, text: 'Q1: ' + stats.q1 },
@@ -354,22 +338,24 @@ function createBoxPlot(containerId, stats) {
     { pos: maxPos, text: 'Max: ' + (stats.max > maxVal ? maxVal + '+' : stats.max) }
   ];
   
-  labels.forEach(label => {
-    const element = document.createElement('div');
-    element.className = 'box-plot-label';
-    element.style.left = label.pos + '%';
-    element.textContent = label.text;
-    container.appendChild(element);
-  });
+  // Add mean text beneath
+  const meanText = document.createElement('div');
+  meanText.style.position = 'absolute';
+  meanText.style.left = '50%';
+  meanText.style.top = '110px';
+  meanText.style.transform = 'translateX(-50%)';
+  meanText.style.width = 'auto';
+  meanText.style.textAlign = 'center';
+  meanText.innerHTML = `<span style="display: inline-flex; align-items: center;"><span style="display: inline-block; width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; margin-right: 5px;"></span>Mean: ${stats.mean}</span>`;
+  container.appendChild(meanText);
   
-  // Add mean label below box
-  const meanLabel = document.createElement('div');
-  meanLabel.style.position = 'absolute';
-  meanLabel.style.top = '110px';
-  meanLabel.style.width = '100%';
-  meanLabel.style.textAlign = 'center';
-  meanLabel.innerHTML = '<span style="display: inline-flex; align-items: center;"><span style="display: inline-block; width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; margin-right: 5px;"></span>Mean: ' + stats.mean + '</span>';
-  container.appendChild(meanLabel);
+  // Initialize tooltips
+  setTimeout(() => {
+    const tooltipTriggerList = [].slice.call(container.querySelectorAll('[data-bs-toggle="tooltip"]'));
+    tooltipTriggerList.map(function(tooltipTriggerEl) {
+      return new bootstrap.Tooltip(tooltipTriggerEl);
+    });
+  }, 100);
 }
 
 function addStatRow(table, label, value2024, value2025, change, percentChange) {
@@ -391,23 +377,6 @@ function initializeByWardTab(wardData, summaryData) {
   createWardComparisonChart('wardMeanChart', wardData, 'mean', 'Mean Waiting Time by Ward');
   createWardComparisonChart('wardMedianChart', wardData, 'median', 'Median Waiting Time by Ward');
   createWardCasesChart('wardCasesChart', summaryData);
-  
-  // Set ward observations
-  const byWardObservations = document.getElementById('byWardObservations');
-  const observations = [
-    "All wards except W6D show substantial increases in median waiting times from 2024 to 2025.",
-    "W6B had the most dramatic increase in median waiting time, from 207 minutes in 2024 to 895 minutes in 2025 (332% increase).",
-    "W6A's median waiting time increased from 345 minutes in 2024 to 940 minutes in 2025 (172% increase).",
-    "W6D is the only ward that showed improvement, with median waiting time decreasing from 479 minutes in 2024 to 452 minutes in 2025 (5.6% decrease).",
-    "W6D saw a significant increase in patient volume, from 60 patients in 2024 to 195 in 2025, which may have affected its performance.",
-    "W6B had the shortest median waiting time in 2024 (207 minutes) but the second longest in 2025 (895 minutes)."
-  ];
-  
-  observations.forEach(obs => {
-    const li = document.createElement('li');
-    li.textContent = obs;
-    byWardObservations.appendChild(li);
-  });
 }
 
 function createWardComparisonChart(canvasId, wardData, metric, title) {
@@ -543,69 +512,50 @@ function createWardCasesChart(canvasId, summaryData) {
 }
 
 function initializeStatisticalTab(statData, overallData, thresholdData) {
-  // Populate Mann-Whitney test table
-  const mannWhitneyTable = document.getElementById('mannWhitneyTable');
-  
-  addSimpleRow(mannWhitneyTable, 'U statistic', statData.mannWhitney.uStatistic);
-  addSimpleRow(mannWhitneyTable, 'Z score', statData.mannWhitney.zScore.toFixed(4));
-  addSimpleRow(mannWhitneyTable, 'p-value', `< ${statData.mannWhitney.pValue}`);
-  addSimpleRow(mannWhitneyTable, 'Median 2024', `${overallData.stats2024.median} minutes`);
-  addSimpleRow(mannWhitneyTable, 'Median 2025', `${overallData.stats2025.median} minutes`);
-  
   // Populate Bootstrap table
   const bootstrapTable = document.getElementById('bootstrapTable');
-  addSimpleRow(bootstrapTable, 'Observed difference (2025 - 2024)', `${statData.bootstrapMedian.observedDifference} minutes`);
-  addSimpleRow(bootstrapTable, '95% Confidence Interval', `[${statData.bootstrapMedian.ci95[0]}, ${statData.bootstrapMedian.ci95[1]}]`);
+  
+  addSimpleRow(bootstrapTable, 'Observed difference (2025 - 2024)', `494 minutes`);
+  addSimpleRow(bootstrapTable, '95% Confidence Interval', `[389, 631]`);
   
   // Populate 4-hour standard table
   const fourHourTable = document.getElementById('fourHourTable');
-  const fourHourData = thresholdData.find(t => t.threshold === "4 hours");
   
-  addSimpleRow(fourHourTable, 'Chi-square statistic', statData.chiSquare4Hour.statistic.toFixed(4));
-  addSimpleRow(fourHourTable, 'p-value', `< ${statData.chiSquare4Hour.pValue}`);
-  addSimpleRow(fourHourTable, 'Odds ratio', statData.chiSquare4Hour.oddsRatio.toFixed(2));
-  addSimpleRow(fourHourTable, '95% CI for odds ratio', `[${statData.chiSquare4Hour.ci95[0]}, ${statData.chiSquare4Hour.ci95[1]}]`);
-  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2024', `${fourHourData.within2024.percent}%`);
-  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2025', `${fourHourData.within2025.percent}%`);
+  addSimpleRow(fourHourTable, 'Chi-square statistic', `126.7145`);
+  addSimpleRow(fourHourTable, 'p-value', `< 0.0001`);
+  addSimpleRow(fourHourTable, 'Odds ratio', `3.56`);
+  addSimpleRow(fourHourTable, '95% CI for odds ratio', `[2.84, 4.46]`);
+  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2024', `45.5%`);
+  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2025', `19%`);
   
   // Populate 6-hour standard table
   const sixHourTable = document.getElementById('sixHourTable');
-  const sixHourData = thresholdData.find(t => t.threshold === "6 hours");
   
-  addSimpleRow(sixHourTable, 'Chi-square statistic', statData.chiSquare6Hour.statistic.toFixed(4));
-  addSimpleRow(sixHourTable, 'p-value', `< ${statData.chiSquare6Hour.pValue}`);
-  addSimpleRow(sixHourTable, 'Odds ratio', statData.chiSquare6Hour.oddsRatio.toFixed(2));
-  addSimpleRow(sixHourTable, '95% CI for odds ratio', `[${statData.chiSquare6Hour.ci95[0]}, ${statData.chiSquare6Hour.ci95[1]}]`);
-  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2024', `${sixHourData.within2024.percent}%`);
-  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2025', `${sixHourData.within2025.percent}%`);
+  addSimpleRow(sixHourTable, 'Chi-square statistic', `144.7049`);
+  addSimpleRow(sixHourTable, 'p-value', `< 0.0001`);
+  addSimpleRow(sixHourTable, 'Odds ratio', `3.50`);
+  addSimpleRow(sixHourTable, '95% CI for odds ratio', `[2.85, 4.31]`);
+  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2024', `61.2%`);
+  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2025', `31.0%`);
   
   // Populate extended waits table
   const extendedWaitsTable = document.getElementById('extendedWaitsTable');
-  const twentyFourHourData = thresholdData.find(t => t.threshold === "24 hours");
   
-  addSimpleRow(extendedWaitsTable, 'Chi-square statistic', statData.chiSquare24Hour.statistic.toFixed(4));
-  addSimpleRow(extendedWaitsTable, 'p-value', `< ${statData.chiSquare24Hour.pValue}`);
-  addSimpleRow(extendedWaitsTable, 'Odds ratio', statData.chiSquare24Hour.oddsRatio.toFixed(2));
-  addSimpleRow(extendedWaitsTable, '95% CI for odds ratio', `[${statData.chiSquare24Hour.ci95[0]}, ${statData.chiSquare24Hour.ci95[1]}]`);
-  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2024', `${twentyFourHourData.exceeding2024.percent}%`);
-  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2025', `${twentyFourHourData.exceeding2025.percent}%`);
+  addSimpleRow(extendedWaitsTable, 'Chi-square statistic', `135.7921`);
+  addSimpleRow(extendedWaitsTable, 'p-value', `< 0.0001`);
+  addSimpleRow(extendedWaitsTable, 'Odds ratio', `7.12`);
+  addSimpleRow(extendedWaitsTable, '95% CI for odds ratio', `[4.89, 10.37]`);
+  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2024', `4.4%`);
+  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2025', `24.6%`);
 }
 
 function addSimpleRow(table, label, value) {
   const row = document.createElement('tr');
+  
   row.innerHTML = `
     <td class="fw-bold">${label}</td>
     <td>${value}</td>
   `;
-  table.appendChild(row);
-}
-
-function setGlobalObservations(observations) {
-  const globalObservationsList = document.getElementById('globalObservationsList');
   
-  observations.forEach(obs => {
-    const li = document.createElement('li');
-    li.textContent = obs;
-    globalObservationsList.appendChild(li);
-  });
+  table.appendChild(row);
 }
