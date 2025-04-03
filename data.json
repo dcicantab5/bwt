@@ -1,6 +1,6 @@
 {
   "metadata": {
-    "title": "Bed Waiting Time Analysis (2024-2025)",
+    "title": "Bed Waiting Time Distribution: February 2024 vs 2025 (4-Hour Intervals)",
     "generatedDate": "2025-04-03T12:00:00.000Z",
     "dataSource": "Bed Waiting Med -Table 1 2.csv",
     "wardOrder": ["W6A", "W6B", "W6C", "W6D"]
@@ -25,10 +25,10 @@
     "overall": {
       "stats2024": {
         "count": 798,
-        "mean": 450.92,
+        "mean": 451,
         "median": 271,
         "min": 25,
-        "max": 5505,
+        "max": 5000,
         "q1": 162,
         "q3": 534,
         "iqr": 372,
@@ -37,7 +37,7 @@
       },
       "stats2025": {
         "count": 784,
-        "mean": 976.47,
+        "mean": 976,
         "median": 765,
         "min": 20,
         "max": 4638,
@@ -50,15 +50,21 @@
       "comparison": {
         "medianChange": 494,
         "medianChangePercent": 182.3,
-        "meanChange": 525.55,
-        "meanChangePercent": 116.6
+        "meanChange": 525.6,
+        "meanChangePercent": 116.6,
+        "q1Change": 142,
+        "q1ChangePercent": 87.7,
+        "q3Change": 894,
+        "q3ChangePercent": 167.4,
+        "iqrChange": 752,
+        "iqrChangePercent": 202.2
       }
     },
     "byWard": {
       "W6A": {
         "stats2024": {
           "count": 230,
-          "mean": 468.59,
+          "mean": 469,
           "median": 345,
           "min": 38,
           "max": 2615,
@@ -70,7 +76,7 @@
         },
         "stats2025": {
           "count": 222,
-          "mean": 1076.46,
+          "mean": 1076,
           "median": 940,
           "min": 20,
           "max": 4638,
@@ -84,7 +90,7 @@
       "W6B": {
         "stats2024": {
           "count": 279,
-          "mean": 297.52,
+          "mean": 298,
           "median": 207,
           "min": 36,
           "max": 3214,
@@ -96,7 +102,7 @@
         },
         "stats2025": {
           "count": 183,
-          "mean": 1048.96,
+          "mean": 1049,
           "median": 895,
           "min": 34,
           "max": 3746,
@@ -110,7 +116,7 @@
       "W6C": {
         "stats2024": {
           "count": 229,
-          "mean": 547.31,
+          "mean": 547,
           "median": 280,
           "min": 25,
           "max": 5451,
@@ -122,7 +128,7 @@
         },
         "stats2025": {
           "count": 184,
-          "mean": 991.47,
+          "mean": 991,
           "median": 878,
           "min": 37,
           "max": 4100,
@@ -136,7 +142,7 @@
       "W6D": {
         "stats2024": {
           "count": 60,
-          "mean": 728.58,
+          "mean": 729,
           "median": 479,
           "min": 80,
           "max": 5505,
@@ -148,7 +154,7 @@
         },
         "stats2025": {
           "count": 195,
-          "mean": 780.46,
+          "mean": 780,
           "median": 452,
           "min": 37,
           "max": 4476,
@@ -253,6 +259,34 @@
         "percent2025": 2.2
       }
     ],
+    "densityData": [
+      {"duration": 0, "density2024": 0, "density2025": 0},
+      {"duration": 120, "density2024": 39, "density2025": 18},
+      {"duration": 240, "density2024": 69, "density2025": 38},
+      {"duration": 360, "density2024": 38, "density2025": 20},
+      {"duration": 480, "density2024": 20, "density2025": 19},
+      {"duration": 600, "density2024": 12, "density2025": 18},
+      {"duration": 720, "density2024": 8, "density2025": 19},
+      {"duration": 840, "density2024": 7, "density2025": 20},
+      {"duration": 960, "density2024": 5, "density2025": 19},
+      {"duration": 1080, "density2024": 3, "density2025": 18},
+      {"duration": 1200, "density2024": 2, "density2025": 17},
+      {"duration": 1320, "density2024": 1, "density2025": 15},
+      {"duration": 1440, "density2024": 1, "density2025": 13},
+      {"duration": 1560, "density2024": 1, "density2025": 11},
+      {"duration": 1680, "density2024": 0.8, "density2025": 9},
+      {"duration": 1800, "density2024": 0.7, "density2025": 8},
+      {"duration": 1920, "density2024": 0.5, "density2025": 7},
+      {"duration": 2040, "density2024": 0.4, "density2025": 6},
+      {"duration": 2160, "density2024": 0.3, "density2025": 5},
+      {"duration": 2280, "density2024": 0.3, "density2025": 4},
+      {"duration": 2400, "density2024": 0.2, "density2025": 3},
+      {"duration": 2520, "density2024": 0.2, "density2025": 2},
+      {"duration": 2640, "density2024": 0.1, "density2025": 2},
+      {"duration": 2760, "density2024": 0.1, "density2025": 1},
+      {"duration": 2880, "density2024": 0.1, "density2025": 1},
+      {"duration": 3000, "density2024": 0.1, "density2025": 0.8}
+    ],
     "thresholds": [
       {
         "threshold": "4 hours",
@@ -338,27 +372,43 @@
         },
         "percentagePointChange": -20.2
       }
-    ]
-  },
-  "qualityImprovement": {
-    "keyFindings": [
-      "Median waiting time increased from 271 minutes in 2024 to 765 minutes in 2025, a 182.3% increase.",
-      "The proportion of patients seen within 4 hours decreased from 45.5% to 19.0%.",
-      "The proportion of patients seen within 6 hours decreased from 61.2% to 31.0%.",
-      "The proportion of patients waiting more than 24 hours increased from 4.4% to 24.6%.",
-      "All wards except W6D show substantial increases in median waiting times, with W6B showing the most dramatic increase from 207 to 895 minutes (332% increase).",
-      "The interquartile range (IQR) has widened considerably, indicating greater variability in waiting times in 2025.",
-      "W6D had the highest median wait in 2024 (479 min) but in 2025 has the lowest (452 min) among all wards, making it the only ward to show improvement."
     ],
-    "recommendations": [
-      "Conduct detailed process analysis to identify bottlenecks in the bed allocation system",
-      "Review staffing patterns during peak admission hours",
-      "Implement discharge planning earlier in the patient journey to improve bed availability",
-      "Explore the use of discharge lounges to free up beds earlier in the day",
-      "Regular monitoring of waiting time metrics with targeted interventions for wards showing the greatest delays",
-      "Study practices in W6D that have helped maintain waiting times while other wards saw increases",
-      "Consider implementation of a real-time bed management system to improve allocation efficiency",
-      "Develop standard operating procedures for expedited transfer of patients during high occupancy periods"
-    ]
-  }
+    "statAnalysis": {
+      "mannWhitney": {
+        "uStatistic": 173006,
+        "zScore": -15.3897,
+        "pValue": 0.0001
+      },
+      "bootstrapMedian": {
+        "observedDifference": 494,
+        "ci95": [389, 631]
+      },
+      "chiSquare4Hour": {
+        "statistic": 126.7145,
+        "pValue": 0.0001,
+        "oddsRatio": 3.56,
+        "ci95": [2.84, 4.46]
+      },
+      "chiSquare6Hour": {
+        "statistic": 144.7049,
+        "pValue": 0.0001,
+        "oddsRatio": 3.50,
+        "ci95": [2.85, 4.31]
+      },
+      "chiSquare24Hour": {
+        "statistic": 135.7921,
+        "pValue": 0.0001,
+        "oddsRatio": 7.12,
+        "ci95": [4.89, 10.37]
+      }
+    }
+  },
+  "keyObservations": [
+    "The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.",
+    "The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.",
+    "Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.",
+    "The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.",
+    "There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.",
+    "All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling."
+  ]
 }
