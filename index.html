@@ -56,13 +56,6 @@
       margin-bottom: 30px;
     }
     
-    .chart-container-small {
-      width: 100%;
-      height: 300px;
-      position: relative;
-      margin-bottom: 30px;
-    }
-    
     .section-title {
       margin-bottom: 20px;
       font-weight: 500;
@@ -198,6 +191,13 @@
       font-weight: 500;
     }
     
+    .key-observations {
+      background-color: #f9f9f9;
+      padding: 20px;
+      margin: 20px 0;
+      border: 1px solid #e2e8f0;
+    }
+    
     footer {
       margin-top: 40px;
       color: #777;
@@ -205,6 +205,26 @@
       font-size: 0.9rem;
       padding-top: 20px;
       border-top: 1px solid #eee;
+    }
+    
+    #densityTooltip {
+      position: absolute;
+      display: none;
+      background: white;
+      border: 1px solid #ddd;
+      padding: 10px;
+      border-radius: 4px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+      pointer-events: none;
+      z-index: 100;
+    }
+    
+    .vertical-line {
+      position: absolute;
+      height: 100%;
+      width: 1px;
+      background-color: rgba(0,0,0,0.5);
+      display: none;
     }
   </style>
 </head>
@@ -248,13 +268,39 @@
         <div class="chart-container">
           <canvas id="histogramCountChart"></canvas>
         </div>
+        
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul>
+            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
+            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
+            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
+            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
+            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
+            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
+          </ul>
+        </div>
       </div>
       
       <!-- Density Plot Tab -->
       <div class="tab-pane fade" id="density" role="tabpanel" aria-labelledby="density-tab">
         <h2 class="section-title">Density Distribution of Waiting Times</h2>
-        <div class="chart-container">
+        <div class="chart-container" id="densityChartContainer">
           <canvas id="densityChart"></canvas>
+          <div id="densityTooltip"></div>
+          <div class="vertical-line" id="densityVerticalLine"></div>
+        </div>
+        
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul>
+            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
+            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
+            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
+            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
+            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
+            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
+          </ul>
         </div>
       </div>
       
@@ -291,6 +337,18 @@
             </tbody>
           </table>
         </div>
+        
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul>
+            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
+            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
+            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
+            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
+            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
+            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
+          </ul>
+        </div>
       </div>
       
       <!-- By Ward Tab -->
@@ -311,11 +369,63 @@
         <div class="chart-container">
           <canvas id="wardCasesChart"></canvas>
         </div>
+        
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul>
+            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
+            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
+            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
+            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
+            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
+            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
+          </ul>
+        </div>
       </div>
       
       <!-- Statistical Analysis Tab -->
       <div class="tab-pane fade" id="statistical" role="tabpanel" aria-labelledby="statistical-tab">
         <h2 class="section-title">Statistical Analysis of Waiting Time Differences</h2>
+        <h3 class="subsection-title">February 2024 vs February 2025</h3>
+        
+        <p>This report presents the results of statistical tests comparing bed waiting times between February 2024 and February 2025, organized by key analytical topics.</p>
+        
+        <h3 class="subsection-title">1. Overall Distribution of Waiting Times</h3>
+        
+        <p>The Mann-Whitney U test was used to compare the overall distribution of waiting times between the two years, without assuming normal distribution.</p>
+        
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr class="table-light">
+                <th>Statistic</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody id="mannWhitneyTable">
+              <tr>
+                <td class="fw-bold">U statistic</td>
+                <td>173,006</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Z score</td>
+                <td>-15.3897</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">p-value</td>
+                <td>&lt;0.0001</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Median 2024</td>
+                <td>270 minutes</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Median 2025</td>
+                <td>764 minutes</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
         
         <div class="interpretation-panel">
           <p>Interpretation: There is a highly statistically significant difference in the distribution of waiting times between February 2024 and February 2025 (p < 0.0001). The median waiting time in February 2025 was nearly three times that of February 2024.</p>
@@ -330,8 +440,15 @@
                 <th>Value</th>
               </tr>
             </thead>
-            <tbody id="bootstrapTable">
-              <!-- Will be populated by JavaScript -->
+            <tbody>
+              <tr>
+                <td class="fw-bold">Observed difference (2025 - 2024)</td>
+                <td>494 minutes</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">95% Confidence Interval</td>
+                <td>[389.0, 631.0]</td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -339,6 +456,7 @@
         <h3 class="subsection-title">2. Key Clinical Thresholds</h3>
         
         <h4>2.1. 4-Hour Standard (240 minutes)</h4>
+        <p>Chi-Square Test Results:</p>
         <div class="table-responsive">
           <table class="table table-bordered">
             <thead>
@@ -347,17 +465,63 @@
                 <th>Value</th>
               </tr>
             </thead>
-            <tbody id="fourHourTable">
-              <!-- Will be populated by JavaScript -->
+            <tbody>
+              <tr>
+                <td class="fw-bold">Chi-square statistic</td>
+                <td>126.7145</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">p-value</td>
+                <td>&lt;0.0001</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Odds ratio</td>
+                <td>3.56</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">95% CI for odds ratio</td>
+                <td>[2.84, 4.46]</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Proportion meeting threshold 2024</td>
+                <td>45.49%</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Proportion meeting threshold 2025</td>
+                <td>19.01%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <p>Bootstrap Confidence Interval:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr class="table-light">
+                <th>Statistic</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-bold">Observed difference in proportions (2025 - 2024)</td>
+                <td>-0.2648 (26.48 percentage points)</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">95% Confidence Interval</td>
+                <td>[-0.3079, -0.2218]</td>
+              </tr>
             </tbody>
           </table>
         </div>
         
         <div class="interpretation-panel">
-          <p>Interpretation: The proportion of patients seen within 4 hours decreased significantly from 45.5% in 2024 to 19.0% in 2025 (p < 0.0001). Patients in 2024 were 3.56 times more likely to be seen within 4 hours than patients in 2025.</p>
+          <p>Interpretation: The proportion of patients seen within 4 hours decreased significantly from 45.49% in 2024 to 19.01% in 2025 (p < 0.0001). Patients in 2024 were 3.56 times more likely to be seen within 4 hours than patients in 2025 (95% CI: 2.84-4.46). With 95% confidence, the true decrease in the proportion of patients seen within 4 hours is between 22.18 and 30.79 percentage points.</p>
         </div>
         
         <h4>2.2. 6-Hour Standard (360 minutes)</h4>
+        <p>Chi-Square Test Results:</p>
         <div class="table-responsive">
           <table class="table table-bordered">
             <thead>
@@ -366,17 +530,63 @@
                 <th>Value</th>
               </tr>
             </thead>
-            <tbody id="sixHourTable">
-              <!-- Will be populated by JavaScript -->
+            <tbody>
+              <tr>
+                <td class="fw-bold">Chi-square statistic</td>
+                <td>144.7049</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">p-value</td>
+                <td>&lt;0.0001</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Odds ratio</td>
+                <td>3.50</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">95% CI for odds ratio</td>
+                <td>[2.85, 4.31]</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Proportion meeting threshold 2024</td>
+                <td>61.15%</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Proportion meeting threshold 2025</td>
+                <td>30.99%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <p>Bootstrap Confidence Interval:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr class="table-light">
+                <th>Statistic</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-bold">Observed difference in proportions (2025 - 2024)</td>
+                <td>-0.3016 (30.16 percentage points)</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">95% Confidence Interval</td>
+                <td>[-0.3458, -0.2549]</td>
+              </tr>
             </tbody>
           </table>
         </div>
         
         <div class="interpretation-panel">
-          <p>Interpretation: The proportion of patients seen within 6 hours decreased significantly from 61.2% in 2024 to 31.0% in 2025 (p < 0.0001). Patients in 2024 were 3.50 times more likely to be seen within 6 hours than patients in 2025.</p>
+          <p>Interpretation: The proportion of patients seen within 6 hours decreased significantly from 61.15% in 2024 to 30.99% in 2025 (p < 0.0001). Patients in 2024 were 3.50 times more likely to be seen within 6 hours than patients in 2025 (95% CI: 2.85-4.31). With 95% confidence, the true decrease in the proportion of patients seen within 6 hours is between 25.49 and 34.58 percentage points.</p>
         </div>
         
         <h4>2.3. Extended Waits (>24 hours/1440 minutes)</h4>
+        <p>Chi-Square Test Results:</p>
         <div class="table-responsive">
           <table class="table table-bordered">
             <thead>
@@ -385,24 +595,82 @@
                 <th>Value</th>
               </tr>
             </thead>
-            <tbody id="extendedWaitsTable">
-              <!-- Will be populated by JavaScript -->
+            <tbody>
+              <tr>
+                <td class="fw-bold">Chi-square statistic</td>
+                <td>(calculated)</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">p-value</td>
+                <td>&lt;0.0001</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Odds ratio</td>
+                <td>7.12</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">95% CI for odds ratio</td>
+                <td>[4.89, 10.37]</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Proportion exceeding 24h 2024</td>
+                <td>4.39%</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">Proportion exceeding 24h 2025</td>
+                <td>24.62%</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        
+        <p>Bootstrap Confidence Interval:</p>
+        <div class="table-responsive">
+          <table class="table table-bordered">
+            <thead>
+              <tr class="table-light">
+                <th>Statistic</th>
+                <th>Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td class="fw-bold">Observed difference in proportions (2025 - 2024)</td>
+                <td>0.2023 (20.23 percentage points)</td>
+              </tr>
+              <tr>
+                <td class="fw-bold">95% Confidence Interval</td>
+                <td>[0.1666, 0.2353]</td>
+              </tr>
             </tbody>
           </table>
         </div>
         
         <div class="interpretation-panel">
-          <p>Interpretation: The proportion of patients waiting more than 24 hours increased significantly from 4.4% in 2024 to 24.6% in 2025 (p < 0.0001). Patients in 2025 were 7.12 times more likely to experience extended waits over 24 hours compared to 2024.</p>
+          <p>Interpretation: The proportion of patients waiting more than 24 hours increased significantly from 4.39% in 2024 to 24.62% in 2025 (p < 0.0001). Patients in 2025 were 7.12 times more likely to experience extended waits over 24 hours compared to 2024 (95% CI: 4.89-10.37). With 95% confidence, the true increase in the proportion of patients experiencing extended waits is between 16.66 and 23.53 percentage points.</p>
         </div>
         
         <h3 class="subsection-title">Summary of Findings</h3>
+        <p>All three statistical methods yield consistent results, providing strong evidence that:</p>
         <ol>
           <li>The overall distribution of waiting times in February 2025 was significantly higher than in February 2024.</li>
-          <li>There were statistically significant decreases in the proportions of patients meeting both the 4-hour standard (26.5 percentage point decrease) and the 6-hour standard (30.2 percentage point decrease).</li>
-          <li>There was a statistically significant increase in the proportion of patients experiencing extended waits of over 24 hours (20.2 percentage point increase).</li>
+          <li>There were statistically significant decreases in the proportions of patients meeting both the 4-hour standard (26.48 percentage point decrease) and the 6-hour standard (30.16 percentage point decrease).</li>
+          <li>There was a statistically significant increase in the proportion of patients experiencing extended waits of over 24 hours (20.23 percentage point increase).</li>
           <li>The magnitude of these changes is substantial, with the median waiting time increasing by approximately 8 hours (494 minutes).</li>
         </ol>
         <p>These findings demonstrate a clear and statistically significant deterioration in bed waiting times between February 2024 and February 2025.</p>
+        
+        <div class="key-observations">
+          <h3>Key Observations:</h3>
+          <ul>
+            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
+            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
+            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
+            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
+            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
+            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
+          </ul>
+        </div>
       </div>
     </div>
     
