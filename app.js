@@ -255,21 +255,33 @@ function createDensityChart(canvasId, densityData) {
     
     const xValue = densityChart.scales.x.getValueForPixel(x);
     
-    // Find closest data point
+    // Only show tooltip at 2-hour intervals (rounded to nearest 2-hour mark)
+    const hourValue = Math.floor(xValue / 60);
+    const rounded2Hours = Math.round(hourValue / 2) * 2;
+    const rounded2HoursMinutes = rounded2Hours * 60;
+    
+    // Find closest data point to the rounded 2-hour interval
     let closestIndex = 0;
-    let minDistance = Math.abs(densityData[0].duration - xValue);
+    let minDistance = Math.abs(densityData[0].duration - rounded2HoursMinutes);
     
     for (let i = 1; i < densityData.length; i++) {
-      const distance = Math.abs(densityData[i].duration - xValue);
+      const distance = Math.abs(densityData[i].duration - rounded2HoursMinutes);
       if (distance < minDistance) {
         minDistance = distance;
         closestIndex = i;
       }
     }
     
-    // Get y values for both datasets at this x position
+    // Get y values for the 2-hour interval
     const y2024 = densityData[closestIndex].density2024;
     const y2025 = densityData[closestIndex].density2025;
+    
+    // Only show tooltip and points at 2-hour intervals
+    if (Math.abs(xValue - rounded2HoursMinutes) > 30) {
+      tooltip.style.display = 'none';
+      pointsContainer.innerHTML = '';
+      return;
+    }
     
     // Convert y values to canvas coordinates
     const y2024Pixel = densityChart.scales.y.getPixelForValue(y2024);
@@ -280,10 +292,8 @@ function createDensityChart(canvasId, densityData) {
     tooltip.style.left = (x + 10) + 'px';
     tooltip.style.top = (y - 50) + 'px';
     
-    // Format time
-    const hours = Math.floor(xValue / 60);
-    const minutes = Math.round(xValue % 60);
-    const timeStr = `${hours}h ${minutes}m`;
+    // Format time as a 2-hour interval
+    const timeStr = `${rounded2Hours}h 0m`;
     
     tooltip.innerHTML = `
       <div style="font-weight: bold;">${timeStr}</div>
