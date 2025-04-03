@@ -221,13 +221,18 @@
     
     .vertical-line {
       position: absolute;
-      height: 100%;
       width: 1px;
       background-color: rgba(0,0,0,0.5);
       display: none;
       pointer-events: none;
+      z-index: 50;
     }
-    </style>
+    
+    #densityChartContainer {
+      position: relative;
+      overflow: hidden;
+    }
+  </style>
 </head>
 <body>
   <div id="loadingSpinner">
