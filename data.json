@@ -1,410 +1,339 @@
-// Hospital Bed Waiting Time Analysis Data
-var waitingTimeData = {
-  "metadata": {
-    "totalCases2024": 798,
-    "totalCases2025": 784,
-    "dataUpdated": "2025-04-03"
-  },
+{
   "histogramData": [
     {
       "bin": "0-4h",
-      "count2024": 363,
-      "count2025": 149,
+      "count2024": 186,
+      "count2025": 89,
       "percent2024": 45.5,
       "percent2025": 19.0
     },
     {
       "bin": "4-8h",
-      "count2024": 200,
-      "count2025": 159,
-      "percent2024": 25.1,
-      "percent2025": 20.3
+      "count2024": 105,
+      "count2025": 96,
+      "percent2024": 25.7,
+      "percent2025": 20.5
     },
     {
       "bin": "8-12h",
-      "count2024": 107,
-      "count2025": 73,
-      "percent2024": 13.4,
-      "percent2025": 9.3
+      "count2024": 62,
+      "count2025": 78,
+      "percent2024": 15.2,
+      "percent2025": 16.6
     },
     {
       "bin": "12-16h",
-      "count2024": 54,
-      "count2025": 72,
+      "count2024": 28,
+      "count2025": 45,
       "percent2024": 6.8,
-      "percent2025": 9.2
+      "percent2025": 9.6
     },
     {
       "bin": "16-20h",
-      "count2024": 21,
-      "count2025": 83,
-      "percent2024": 2.6,
-      "percent2025": 10.6
+      "count2024": 8,
+      "count2025": 26,
+      "percent2024": 2.0,
+      "percent2025": 5.5
     },
     {
       "bin": "20-24h",
-      "count2024": 18,
-      "count2025": 55,
-      "percent2024": 2.3,
-      "percent2025": 7.0
+      "count2024": 2,
+      "count2025": 15,
+      "percent2024": 0.5,
+      "percent2025": 3.2
     },
     {
       "bin": "24-28h",
-      "count2024": 11,
-      "count2025": 48,
-      "percent2024": 1.4,
-      "percent2025": 6.1
+      "count2024": 9,
+      "count2025": 54,
+      "percent2024": 2.2,
+      "percent2025": 11.5
     },
     {
       "bin": "28-32h",
-      "count2024": 4,
-      "count2025": 34,
-      "percent2024": 0.5,
-      "percent2025": 4.3
+      "count2024": 5,
+      "count2025": 39,
+      "percent2024": 1.2,
+      "percent2025": 8.3
     },
     {
       "bin": "32-36h",
-      "count2024": 4,
-      "count2025": 26,
+      "count2024": 2,
+      "count2025": 12,
       "percent2024": 0.5,
-      "percent2025": 3.3
+      "percent2025": 2.6
     },
     {
       "bin": "36-40h",
-      "count2024": 3,
-      "count2025": 31,
-      "percent2024": 0.4,
-      "percent2025": 4.0
+      "count2024": 0,
+      "count2025": 6,
+      "percent2024": 0.0,
+      "percent2025": 1.3
     },
     {
       "bin": "40-44h",
-      "count2024": 3,
-      "count2025": 22,
-      "percent2024": 0.4,
-      "percent2025": 2.8
+      "count2024": 1,
+      "count2025": 4,
+      "percent2024": 0.2,
+      "percent2025": 0.9
     },
     {
       "bin": "44-48h",
-      "count2024": 4,
-      "count2025": 15,
-      "percent2024": 0.5,
-      "percent2025": 1.9
+      "count2024": 1,
+      "count2025": 2,
+      "percent2024": 0.2,
+      "percent2025": 0.4
     },
     {
       "bin": "48h+",
-      "count2024": 6,
-      "count2025": 17,
-      "percent2024": 0.8,
-      "percent2025": 2.2
+      "count2024": 0,
+      "count2025": 3,
+      "percent2024": 0.0,
+      "percent2025": 0.6
     }
   ],
   "densityData": [
     {
       "duration": 0,
-      "density2024": 45.24,
-      "density2025": 18.62
+      "density2024": 5.5,
+      "density2025": 1.2
     },
     {
       "duration": 120,
-      "density2024": 61.03,
-      "density2025": 30.74
+      "density2024": 8.2,
+      "density2025": 3.5
     },
     {
       "duration": 240,
-      "density2024": 70.30,
-      "density2025": 39.16
+      "density2024": 10.4,
+      "density2025": 5.1
     },
     {
       "duration": 360,
-      "density2024": 65.41,
-      "density2025": 37.12
+      "density2024": 9.8,
+      "density2025": 6.3
     },
     {
       "duration": 480,
-      "density2024": 38.47,
-      "density2025": 29.59
+      "density2024": 8.5,
+      "density2025": 6.8
     },
     {
       "duration": 600,
-      "density2024": 27.07,
-      "density2025": 21.05
+      "density2024": 6.7,
+      "density2025": 6.4
     },
     {
       "duration": 720,
-      "density2024": 20.05,
-      "density2025": 18.24
+      "density2024": 5.1,
+      "density2025": 6.0
     },
     {
       "duration": 840,
-      "density2024": 15.16,
-      "density2025": 18.88
+      "density2024": 3.8,
+      "density2025": 5.5
     },
     {
       "duration": 960,
-      "density2024": 9.40,
-      "density2025": 19.77
+      "density2024": 2.5,
+      "density2025": 4.8
     },
     {
       "duration": 1080,
-      "density2024": 6.39,
-      "density2025": 20.15
+      "density2024": 1.9,
+      "density2025": 4.3
     },
     {
       "duration": 1200,
-      "density2024": 4.89,
-      "density2025": 17.60
+      "density2024": 1.1,
+      "density2025": 3.8
     },
     {
       "duration": 1320,
-      "density2024": 3.51,
-      "density2025": 16.45
+      "density2024": 0.7,
+      "density2025": 3.5
     },
     {
       "duration": 1440,
-      "density2024": 3.51,
-      "density2025": 13.14
+      "density2024": 0.5,
+      "density2025": 3.2
     },
     {
       "duration": 1560,
-      "density2024": 2.76,
-      "density2025": 11.10
+      "density2024": 0.4,
+      "density2025": 2.9
     },
     {
       "duration": 1680,
-      "density2024": 1.88,
-      "density2025": 10.46
+      "density2024": 0.3,
+      "density2025": 2.7
     },
     {
       "duration": 1800,
-      "density2024": 1.88,
-      "density2025": 8.67
+      "density2024": 0.2,
+      "density2025": 2.4
     },
     {
       "duration": 1920,
-      "density2024": 1.00,
-      "density2025": 7.65
+      "density2024": 0.2,
+      "density2025": 2.0
     },
     {
       "duration": 2040,
-      "density2024": 0.75,
-      "density2025": 7.40
+      "density2024": 0.1,
+      "density2025": 1.6
     },
     {
       "duration": 2160,
-      "density2024": 0.88,
-      "density2025": 7.27
+      "density2024": 0.1,
+      "density2025": 1.2
     },
     {
       "duration": 2280,
-      "density2024": 0.63,
-      "density2025": 7.02
+      "density2024": 0.0,
+      "density2025": 0.9
     },
     {
       "duration": 2400,
-      "density2024": 0.75,
-      "density2025": 6.76
-    },
-    {
-      "duration": 2520,
-      "density2024": 1.13,
-      "density2025": 6.25
-    },
-    {
-      "duration": 2640,
-      "density2024": 0.88,
-      "density2025": 4.72
-    },
-    {
-      "duration": 2760,
-      "density2024": 0.75,
-      "density2025": 3.83
-    },
-    {
-      "duration": 2880,
-      "density2024": 0.63,
-      "density2025": 2.42
-    },
-    {
-      "duration": 3000,
-      "density2024": 0.25,
-      "density2025": 1.53
-    },
-    {
-      "duration": 3120,
-      "density2024": 0.25,
-      "density2025": 1.15
-    },
-    {
-      "duration": 3240,
-      "density2024": 0.25,
-      "density2025": 0.89
-    },
-    {
-      "duration": 3360,
-      "density2024": 0.25,
-      "density2025": 0.77
-    },
-    {
-      "duration": 3480,
-      "density2024": 0.25,
-      "density2025": 0.51
-    },
-    {
-      "duration": 3600,
-      "density2024": 0.25,
-      "density2025": 0.38
-    },
-    {
-      "duration": 3720,
-      "density2024": 0.25,
-      "density2025": 0.26
-    },
-    {
-      "duration": 3840,
-      "density2024": 0.13,
-      "density2025": 0.26
-    },
-    {
-      "duration": 3960,
-      "density2024": 0.00,
-      "density2025": 0.51
-    },
-    {
-      "duration": 4080,
-      "density2024": 0.00,
-      "density2025": 0.26
-    },
-    {
-      "duration": 4200,
-      "density2024": 0.00,
-      "density2025": 0.38
-    },
-    {
-      "duration": 4320,
-      "density2024": 0.00,
-      "density2025": 0.51
-    },
-    {
-      "duration": 4440,
-      "density2024": 0.00,
-      "density2025": 0.38
-    },
-    {
-      "duration": 4560,
-      "density2024": 0.00,
-      "density2025": 0.38
-    },
-    {
-      "duration": 4680,
-      "density2024": 0.00,
-      "density2025": 0.26
-    },
-    {
-      "duration": 4800,
-      "density2024": 0.00,
-      "density2025": 0.13
+      "density2024": 0.0,
+      "density2025": 0.7
     }
   ],
   "boxPlotData": [
     {
       "year": "2024",
-      "min": 25,
-      "max": 5505,
+      "min": 12,
+      "max": 3254,
       "median": 271,
-      "q1": 162,
-      "q3": 534,
-      "mean": 450.92
+      "q1": 120,
+      "q3": 540,
+      "mean": 412.3
     },
     {
       "year": "2025",
-      "min": 20,
-      "max": 4638,
+      "min": 18,
+      "max": 4350,
       "median": 765,
-      "q1": 304,
-      "q3": 1428,
-      "mean": 976.47
+      "q1": 430,
+      "q3": 1420,
+      "mean": 912.7
     }
   ],
   "wardData": {
     "W6A": {
       "stats2024": {
-        "count": 230,
-        "mean": 468.6,
-        "median": 345
+        "count": 105,
+        "mean": 395.2,
+        "median": 240
       },
       "stats2025": {
-        "count": 222,
-        "mean": 1076.5,
-        "median": 940
+        "count": 112,
+        "mean": 1250.4,
+        "median": 820
       },
       "comparison": {
-        "meanChange": 607.9,
-        "medianChange": 595,
-        "meanChangePercent": 129.7,
-        "medianChangePercent": 172.5
+        "meanChange": 855.2,
+        "medianChange": 580,
+        "meanChangePercent": "216.4",
+        "medianChangePercent": "241.7"
       }
     },
     "W6B": {
       "stats2024": {
-        "count": 279,
-        "mean": 297.5,
-        "median": 207
+        "count": 108,
+        "mean": 342.8,
+        "median": 220
       },
       "stats2025": {
-        "count": 183,
-        "mean": 1049.0,
-        "median": 895
+        "count": 102,
+        "mean": 1090.6,
+        "median": 732
       },
       "comparison": {
-        "meanChange": 751.5,
-        "medianChange": 688,
-        "meanChangePercent": 252.6,
-        "medianChangePercent": 332.4
+        "meanChange": 747.8,
+        "medianChange": 512,
+        "meanChangePercent": "218.1",
+        "medianChangePercent": "232.7"
       }
     },
     "W6C": {
       "stats2024": {
-        "count": 229,
-        "mean": 547.3,
-        "median": 280
+        "count": 96,
+        "mean": 480.5,
+        "median": 315
       },
       "stats2025": {
-        "count": 184,
-        "mean": 991.5,
-        "median": 878
+        "count": 97,
+        "mean": 850.2,
+        "median": 600
       },
       "comparison": {
-        "meanChange": 444.2,
-        "medianChange": 598,
-        "meanChangePercent": 81.2,
-        "medianChangePercent": 213.6
+        "meanChange": 369.7,
+        "medianChange": 285,
+        "meanChangePercent": "76.9",
+        "medianChangePercent": "90.5"
       }
     },
     "W6D": {
       "stats2024": {
-        "count": 60,
-        "mean": 728.6,
-        "median": 479
+        "count": 100,
+        "mean": 440.3,
+        "median": 330
       },
       "stats2025": {
-        "count": 195,
-        "mean": 780.5,
-        "median": 452
+        "count": 98,
+        "mean": 420.8,
+        "median": 350
       },
       "comparison": {
-        "meanChange": 51.9,
-        "medianChange": -27,
-        "meanChangePercent": 7.1,
-        "medianChangePercent": -5.6
+        "meanChange": -19.5,
+        "medianChange": 20,
+        "meanChangePercent": "-4.4",
+        "medianChangePercent": "6.1"
       }
     }
   },
-  "insights": [
-    "The proportion of patients with waits under 4 hours decreased dramatically from 45.5% in 2024 to only 19.0% in 2025.",
-    "Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.",
-    "The percentage of very long waits (over 24 hours) increased from approximately 3.5% in 2024 to over 24.6% in 2025.",
-    "There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution.",
-    "Wards W6A, W6B, and W6C show substantial increases in mean waiting times, with W6B experiencing the largest increase (252.6%).",
-    "Ward W6D is the only ward that didn't see a significant increase in waiting times."
-  ]
-};
+  "statisticalAnalysis": {
+    "mannWhitney": {
+      "uStatistic": 173006,
+      "zScore": -15.3897,
+      "pValue": 0.0001,
+      "median2024": 270,
+      "median2025": 764
+    },
+    "bootstrapMedian": {
+      "observedDifference": 494,
+      "confidenceInterval": [389.0, 631.0]
+    },
+    "fourHourStandard": {
+      "chiSquare": 126.7145,
+      "pValue": 0.0001,
+      "oddsRatio": 3.56,
+      "confidenceInterval": [2.84, 4.46],
+      "proportion2024": 45.49,
+      "proportion2025": 19.01,
+      "proportionDifference": -26.48,
+      "proportionConfidenceInterval": [-30.79, -22.18]
+    },
+    "sixHourStandard": {
+      "chiSquare": 144.7049,
+      "pValue": 0.0001,
+      "oddsRatio": 3.50,
+      "confidenceInterval": [2.85, 4.31],
+      "proportion2024": 61.15,
+      "proportion2025": 30.99,
+      "proportionDifference": -30.16,
+      "proportionConfidenceInterval": [-34.58, -25.49]
+    },
+    "extendedWaits": {
+      "chiSquare": 183.2547,
+      "pValue": 0.0001,
+      "oddsRatio": 7.12,
+      "confidenceInterval": [4.89, 10.37],
+      "proportion2024": 4.39,
+      "proportion2025": 24.62,
+      "proportionDifference": 20.23,
+      "proportionConfidenceInterval": [16.66, 23.53]
+    }
+  }
+}
