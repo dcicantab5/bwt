@@ -1,14 +1,50 @@
 // Bed Waiting Time Visualization App
-// Loads data from data.json and renders interactive visualizations
+// Supports both React/Recharts approach and a fallback direct DOM approach
 
 'use strict';
 
-// Wait for DOM to be ready, then render the app
+// Wait for DOM to be ready
 document.addEventListener('DOMContentLoaded', () => {
+  console.log('DOM loaded, initializing visualization');
+  
+  // Check if libraries are available
+  const reactAvailable = typeof React !== 'undefined';
+  const reactDomAvailable = typeof ReactDOM !== 'undefined';
+  const rechartsAvailable = typeof Recharts !== 'undefined';
+  
+  // Log library status
+  console.log('Library status:', {
+    reactAvailable,
+    reactDomAvailable,
+    rechartsAvailable
+  });
+  
+  // Update debug info
+  const debugInfo = document.getElementById('debug-info');
+  if (debugInfo) {
+    let debugHTML = '<div>Library Status:</div>';
+    debugHTML += `<div>React: ${reactAvailable ? '✅' : '❌'}</div>`;
+    debugHTML += `<div>ReactDOM: ${reactDomAvailable ? '✅' : '❌'}</div>`;
+    debugHTML += `<div>Recharts: ${rechartsAvailable ? '✅' : '❌'}</div>`;
+    debugInfo.innerHTML = debugHTML;
+  }
+  
+  // Only proceed with React if all required libraries are available
+  if (reactAvailable && reactDomAvailable && rechartsAvailable) {
+    console.log('All libraries available, initializing React app');
+    initializeReactApp();
+  } else {
+    console.warn('Required libraries not available, falling back to direct DOM');
+    // The fallback visualization is handled by the script in index.html
+  }
+});
+
+// Initialize the React app if libraries are available
+function initializeReactApp() {
   // Destructure React hooks
   const { useState, useEffect } = React;
   
-  // Get Recharts components from the global Recharts object
+  // Get Recharts components
   const { 
     BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, 
     ResponsiveContainer, LineChart, Line
@@ -61,44 +97,22 @@ document.addEventListener('DOMContentLoaded', () => {
                 <CartesianGrid strokeDasharray="3 3" />
                 <XAxis dataKey="bin" />
                 <YAxis label={{ value: 'Percentage of Cases (%)', angle: -90, position: 'insideLeft' }} />
-                <Tooltip 
-                  formatter={(value, name) => {
-                    if (name === "percent2024") return [`${value}%`, "Feb 2024"];
-                    if (name === "percent2025") return [`${value}%`, "Feb 2025"];
-                    return [value, name];
-                  }}
-                />
+                <Tooltip formatter={(value, name) => {
+                  if (name === "percent2024") return [`${value}%`, "Feb 2024"];
+                  if (name === "percent2025") return [`${value}%`, "Feb 2025"];
+                  return [value, name];
+                }} />
                 <Legend />
                 <Bar dataKey="percent2024" name="Feb 2024" fill="#8884d8" />
                 <Bar dataKey="percent2025" name="Feb 2025" fill="#82ca9d" />
               </BarChart>
             </ResponsiveContainer>
           </div>
-          
-          <div className="mt-8">
-            <h3 className="text-lg font-medium mb-2">Waiting Time Distribution (Number of Cases)</h3>
-            <div className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={data.histogramData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="bin" />
-                  <YAxis label={{ value: 'Number of Cases', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="count2024" name="Feb 2024" fill="#8884d8" />
-                  <Bar dataKey="count2025" name="Feb 2025" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
         </div>
       );
     };
 
-    // Density Plot Tab
+    // Density Plot Tab (simplified)
     const renderDensityPlot = () => {
       if (!data || !data.densityData) return null;
 
@@ -115,14 +129,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 <XAxis 
                   dataKey="duration" 
                   label={{ value: 'Duration (minutes)', position: 'insideBottom', offset: -5 }} 
-                  domain={[0, 5000]}
                   tickFormatter={(value) => `${Math.round(value/60)}h`}
                 />
                 <YAxis label={{ value: 'Density', angle: -90, position: 'insideLeft' }} />
-                <Tooltip 
-                  formatter={(value, name) => [value.toFixed(2), name]}
-                  labelFormatter={(value) => `${Math.floor(value/60)}h ${value%60}m`}
-                />
+                <Tooltip />
                 <Legend />
                 <Line type="monotone" dataKey="density2024" name="Feb 2024" stroke="#8884d8" dot={false} />
                 <Line type="monotone" dataKey="density2025" name="Feb 2025" stroke="#82ca9d" dot={false} />
@@ -133,186 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
       );
     };
 
-    // Box Plot Tab
-    const renderBoxPlot = () => {
-      if (!data || !data.boxPlotData) return null;
-
-      return (
-        <div className="w-full p-4">
-          <h3 className="text-lg font-medium mb-2">Box Plot Comparison</h3>
-          <div className="flex flex-wrap">
-            {data.boxPlotData.map((item, index) => (
-              <div key={index} className="w-full md:w-1/2 p-4">
-                <h4 className="text-center mb-2 font-medium">February {item.year}</h4>
-                <div className="bg-gray-100 p-4 rounded-lg">
-                  <div className="flex justify-between text-sm text-gray-600 mb-1">
-                    <span>Min: {item.min}</span>
-                    <span>Q1: {item.q1}</span>
-                    <span>Median: {item.median}</span>
-                    <span>Q3: {item.q3}</span>
-                    <span>Max: {Math.min(item.max, 5000)}</span>
-                  </div>
-                  <div className="h-20 relative">
-                    <div className="absolute top-8 left-0 right-0 h-4 bg-gray-300" />
-                    
-                    {/* Min line */}
-                    <div className="absolute top-4 bg-gray-700 w-1 h-12" style={{ 
-                      left: `${(item.min / 5000) * 100}%` 
-                    }} />
-                    
-                    {/* Box for Q1 to Q3 */}
-                    <div className="absolute top-6 h-8 bg-blue-500" style={{ 
-                      left: `${(item.q1 / 5000) * 100}%`,
-                      width: `${((item.q3 - item.q1) / 5000) * 100}%`
-                    }} />
-                    
-                    {/* Median line */}
-                    <div className="absolute top-4 bg-white w-1 h-12 z-10" style={{ 
-                      left: `${(item.median / 5000) * 100}%` 
-                    }} />
-                    
-                    {/* Mean marker (circle) */}
-                    <div className="absolute top-8 transform -translate-x-1/2 -translate-y-1/2 w-3 h-3 bg-red-500 rounded-full z-20" style={{ 
-                      left: `${(item.mean / 5000) * 100}%` 
-                    }} />
-                    
-                    {/* Max line (capped at 5000 for display) */}
-                    <div className="absolute top-4 bg-gray-700 w-1 h-12" style={{ 
-                      left: `${(Math.min(item.max, 5000) / 5000) * 100}%` 
-                    }} />
-                    
-                    {/* Line from min to Q1 */}
-                    <div className="absolute top-10 h-0.5 bg-gray-700" style={{ 
-                      left: `${(item.min / 5000) * 100}%`,
-                      width: `${((item.q1 - item.min) / 5000) * 100}%`
-                    }} />
-                    
-                    {/* Line from Q3 to max */}
-                    <div className="absolute top-10 h-0.5 bg-gray-700" style={{ 
-                      left: `${(item.q3 / 5000) * 100}%`,
-                      width: `${((Math.min(item.max, 5000) - item.q3) / 5000) * 100}%`
-                    }} />
-                  </div>
-                  <div className="mt-2 text-center text-sm">
-                    <span className="inline-flex items-center">
-                      <span className="w-3 h-3 bg-red-500 rounded-full inline-block mr-1"></span>
-                      Mean: {item.mean.toFixed(0)}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-          
-          <div className="mt-8">
-            <h3 className="text-lg font-medium mb-4">Key Statistics Comparison</h3>
-            <div className="overflow-x-auto">
-              <table className="min-w-full bg-white border border-gray-300">
-                <thead>
-                  <tr className="bg-gray-100">
-                    <th className="py-2 px-4 border">Statistic</th>
-                    <th className="py-2 px-4 border">Feb 2024</th>
-                    <th className="py-2 px-4 border">Feb 2025</th>
-                    <th className="py-2 px-4 border">Change</th>
-                    <th className="py-2 px-4 border">% Change</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {data.boxPlotData.length === 2 && (
-                    <>
-                      <tr>
-                        <td className="py-2 px-4 border font-medium">Median</td>
-                        <td className="py-2 px-4 border">{data.boxPlotData[0].median}</td>
-                        <td className="py-2 px-4 border">{data.boxPlotData[1].median}</td>
-                        <td className="py-2 px-4 border">{data.boxPlotData[1].median - data.boxPlotData[0].median}</td>
-                        <td className="py-2 px-4 border">{((data.boxPlotData[1].median - data.boxPlotData[0].median) / data.boxPlotData[0].median * 100).toFixed(1)}%</td>
-                      </tr>
-                      <tr>
-                        <td className="py-2 px-4 border font-medium">Mean</td>
-                        <td className="py-2 px-4 border">{data.boxPlotData[0].mean.toFixed(1)}</td>
-                        <td className="py-2 px-4 border">{data.boxPlotData[1].mean.toFixed(1)}</td>
-                        <td className="py-2 px-4 border">{(data.boxPlotData[1].mean - data.boxPlotData[0].mean).toFixed(1)}</td>
-                        <td className="py-2 px-4 border">{((data.boxPlotData[1].mean - data.boxPlotData[0].mean) / data.boxPlotData[0].mean * 100).toFixed(1)}%</td>
-                      </tr>
-                    </>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    // Ward Comparison Tab
-    const renderWardComparison = () => {
-      if (!data || !data.wardData) return null;
-
-      // Create data for bar chart comparison
-      const prepareWardData = () => {
-        return Object.keys(data.wardData).map(ward => {
-          const wardInfo = data.wardData[ward];
-          return {
-            ward,
-            mean2024: wardInfo.stats2024 ? wardInfo.stats2024.mean : 0,
-            mean2025: wardInfo.stats2025 ? wardInfo.stats2025.mean : 0,
-            median2024: wardInfo.stats2024 ? wardInfo.stats2024.median : 0,
-            median2025: wardInfo.stats2025 ? wardInfo.stats2025.median : 0,
-            count2024: wardInfo.stats2024 ? wardInfo.stats2024.count : 0,
-            count2025: wardInfo.stats2025 ? wardInfo.stats2025.count : 0
-          };
-        });
-      };
-      
-      const wardChartData = prepareWardData();
-      
-      return (
-        <div className="w-full p-4">
-          <h3 className="text-lg font-medium mb-2">Ward-Specific Comparison</h3>
-          <div className="mb-8">
-            <h4 className="text-md mb-2">Mean Waiting Time by Ward</h4>
-            <div className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={wardChartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="ward" />
-                  <YAxis label={{ value: 'Mean Duration (minutes)', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="mean2024" name="Feb 2024" fill="#8884d8" />
-                  <Bar dataKey="mean2025" name="Feb 2025" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-          
-          <div className="mb-8">
-            <h4 className="text-md mb-2">Median Waiting Time by Ward</h4>
-            <div className="h-96">
-              <ResponsiveContainer width="100%" height="100%">
-                <BarChart
-                  data={wardChartData}
-                  margin={{ top: 20, right: 30, left: 20, bottom: 5 }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="ward" />
-                  <YAxis label={{ value: 'Median Duration (minutes)', angle: -90, position: 'insideLeft' }} />
-                  <Tooltip />
-                  <Legend />
-                  <Bar dataKey="median2024" name="Feb 2024" fill="#8884d8" />
-                  <Bar dataKey="median2025" name="Feb 2025" fill="#82ca9d" />
-                </BarChart>
-              </ResponsiveContainer>
-            </div>
-          </div>
-        </div>
-      );
-    };
-
-    // Statistical Analysis Tab
+    // Statistical Analysis Tab (simplified)
     const renderStatisticalAnalysis = () => {
       if (!data) return null;
 
@@ -327,8 +158,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 <li key={index}>{insight}</li>
               ))}
             </ul>
-            
-            <p className="mb-4">These findings demonstrate a clear and statistically significant deterioration in bed waiting times between February 2024 and February 2025.</p>
           </div>
         </div>
       );
@@ -370,18 +199,6 @@ document.addEventListener('DOMContentLoaded', () => {
             Density Plot
           </button>
           <button 
-            className={`px-4 py-2 ${selectedTab === 'boxplot' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-            onClick={() => {setSelectedTab('boxplot'); setShowStatisticalAnalysis(false);}}
-          >
-            Box Plot
-          </button>
-          <button 
-            className={`px-4 py-2 ${selectedTab === 'wards' ? 'border-b-2 border-blue-500 font-medium' : ''}`}
-            onClick={() => {setSelectedTab('wards'); setShowStatisticalAnalysis(false);}}
-          >
-            By Ward
-          </button>
-          <button 
             className={`px-4 py-2 ${showStatisticalAnalysis ? 'border-b-2 border-blue-500 font-medium' : ''}`}
             onClick={() => setShowStatisticalAnalysis(true)}
           >
@@ -391,8 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
         
         {!showStatisticalAnalysis && selectedTab === 'histogram' && renderHistogram()}
         {!showStatisticalAnalysis && selectedTab === 'density' && renderDensityPlot()}
-        {!showStatisticalAnalysis && selectedTab === 'boxplot' && renderBoxPlot()}
-        {!showStatisticalAnalysis && selectedTab === 'wards' && renderWardComparison()}
         {showStatisticalAnalysis && renderStatisticalAnalysis()}
         
         <div className="mt-6 bg-gray-50 p-4 rounded border">
@@ -412,9 +227,15 @@ document.addEventListener('DOMContentLoaded', () => {
     );
   };
 
-  // Render the app to DOM
-  ReactDOM.render(
-    <App />,
-    document.getElementById('app')
-  );
-});
+  // Try to render the React app
+  try {
+    ReactDOM.render(
+      <App />,
+      document.getElementById('app')
+    );
+    console.log('React app rendered successfully');
+  } catch (error) {
+    console.error('Error rendering React app:', error);
+    // The fallback visualization will be handled by the script in index.html
+  }
+}
