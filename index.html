@@ -225,8 +225,9 @@
       width: 1px;
       background-color: rgba(0,0,0,0.5);
       display: none;
+      pointer-events: none;
     }
-  </style>
+    </style>
 </head>
 <body>
   <div id="loadingSpinner">
@@ -268,18 +269,6 @@
         <div class="chart-container">
           <canvas id="histogramCountChart"></canvas>
         </div>
-        
-        <div class="key-observations">
-          <h3>Key Observations:</h3>
-          <ul>
-            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
-            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
-            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
-            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
-            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
-            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
-          </ul>
-        </div>
       </div>
       
       <!-- Density Plot Tab -->
@@ -289,18 +278,6 @@
           <canvas id="densityChart"></canvas>
           <div id="densityTooltip"></div>
           <div class="vertical-line" id="densityVerticalLine"></div>
-        </div>
-        
-        <div class="key-observations">
-          <h3>Key Observations:</h3>
-          <ul>
-            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
-            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
-            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
-            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
-            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
-            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
-          </ul>
         </div>
       </div>
       
@@ -337,18 +314,6 @@
             </tbody>
           </table>
         </div>
-        
-        <div class="key-observations">
-          <h3>Key Observations:</h3>
-          <ul>
-            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
-            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
-            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
-            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
-            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
-            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
-          </ul>
-        </div>
       </div>
       
       <!-- By Ward Tab -->
@@ -368,18 +333,6 @@
         <h3 class="subsection-title">Number of Cases by Ward</h3>
         <div class="chart-container">
           <canvas id="wardCasesChart"></canvas>
-        </div>
-        
-        <div class="key-observations">
-          <h3>Key Observations:</h3>
-          <ul>
-            <li>The proportion of patients with waits under 240 minutes (4 hours) decreased dramatically from approximately 46% in 2024 to only 19% in 2025.</li>
-            <li>The proportion of patients with waits under 360 minutes (6 hours) decreased from approximately 58% in 2024 to only 29% in 2025.</li>
-            <li>Median waiting times more than doubled from 271 minutes in 2024 to 765 minutes in 2025.</li>
-            <li>The percentage of very long waits (over 24 hours/1440 minutes) increased from approximately 3% in 2024 to over 25% in 2025.</li>
-            <li>There is significantly more variation in waiting times in 2025, shown by the wider spread in the distribution and increased interquartile range.</li>
-            <li>All wards except W6D show substantial increases in mean waiting times, with waiting times in wards W6A and W6B more than tripling.</li>
-          </ul>
         </div>
       </div>
       
