@@ -1,14 +1,9 @@
 {
   "metadata": {
     "title": "Bed Waiting Time Analysis (2024-2025)",
-    "generatedDate": "2025-04-03T02:17:00.223Z",
+    "generatedDate": "2025-04-03T12:00:00.000Z",
     "dataSource": "Bed Waiting Med -Table 1 2.csv",
-    "wardOrder": [
-      "W6A",
-      "W6B",
-      "W6C",
-      "W6D"
-    ]
+    "wardOrder": ["W6A", "W6B", "W6C", "W6D"]
   },
   "summary": {
     "wardCounts2024": {
@@ -38,10 +33,7 @@
         "q3": 534,
         "iqr": 372,
         "stdDev": 534.25,
-        "ci95": [
-          413.85,
-          487.99
-        ]
+        "ci95": [413.85, 487.99]
       },
       "stats2025": {
         "count": 784,
@@ -53,10 +45,7 @@
         "q3": 1428,
         "iqr": 1124,
         "stdDev": 820.83,
-        "ci95": [
-          919.01,
-          1033.93
-        ]
+        "ci95": [919.01, 1033.93]
       },
       "comparison": {
         "medianChange": 494,
@@ -77,10 +66,7 @@
           "q3": 634,
           "iqr": 442,
           "stdDev": 393.18,
-          "ci95": [
-            417.77,
-            519.40
-          ]
+          "ci95": [417.77, 519.40]
         },
         "stats2025": {
           "count": 222,
@@ -92,10 +78,7 @@
           "q3": 1428,
           "iqr": 1011,
           "stdDev": 830.99,
-          "ci95": [
-            967.15,
-            1185.77
-          ]
+          "ci95": [967.15, 1185.77]
         }
       },
       "W6B": {
@@ -109,10 +92,7 @@
           "q3": 338,
           "iqr": 205,
           "stdDev": 302.93,
-          "ci95": [
-            261.98,
-            333.07
-          ]
+          "ci95": [261.98, 333.07]
         },
         "stats2025": {
           "count": 183,
@@ -124,10 +104,7 @@
           "q3": 1541,
           "iqr": 1236,
           "stdDev": 860.42,
-          "ci95": [
-            924.30,
-            1173.63
-          ]
+          "ci95": [924.30, 1173.63]
         }
       },
       "W6C": {
@@ -141,10 +118,7 @@
           "q3": 663,
           "iqr": 497,
           "stdDev": 663.63,
-          "ci95": [
-            461.35,
-            633.26
-          ]
+          "ci95": [461.35, 633.26]
         },
         "stats2025": {
           "count": 184,
@@ -156,10 +130,7 @@
           "q3": 1460,
           "iqr": 1117,
           "stdDev": 796.70,
-          "ci95": [
-            876.35,
-            1106.58
-          ]
+          "ci95": [876.35, 1106.58]
         }
       },
       "W6D": {
@@ -173,10 +144,7 @@
           "q3": 865,
           "iqr": 643,
           "stdDev": 934.21,
-          "ci95": [
-            492.20,
-            964.97
-          ]
+          "ci95": [492.20, 964.97]
         },
         "stats2025": {
           "count": 195,
@@ -188,10 +156,7 @@
           "q3": 1272,
           "iqr": 1051,
           "stdDev": 757.70,
-          "ci95": [
-            674.11,
-            886.81
-          ]
+          "ci95": [674.11, 886.81]
         }
       }
     },
@@ -381,9 +346,9 @@
       "The proportion of patients seen within 4 hours decreased from 45.5% to 19.0%.",
       "The proportion of patients seen within 6 hours decreased from 61.2% to 31.0%.",
       "The proportion of patients waiting more than 24 hours increased from 4.4% to 24.6%.",
-      "All wards except W6D show substantial increases in median waiting times, with W6B showing the most dramatic increase.",
+      "All wards except W6D show substantial increases in median waiting times, with W6B showing the most dramatic increase from 207 to 895 minutes (332% increase).",
       "The interquartile range (IQR) has widened considerably, indicating greater variability in waiting times in 2025.",
-      "W6D had the highest median wait in 2024 (479 min) but in 2025 has the lowest (452 min) among all wards."
+      "W6D had the highest median wait in 2024 (479 min) but in 2025 has the lowest (452 min) among all wards, making it the only ward to show improvement."
     ],
     "recommendations": [
       "Conduct detailed process analysis to identify bottlenecks in the bed allocation system",
@@ -392,7 +357,8 @@
       "Explore the use of discharge lounges to free up beds earlier in the day",
       "Regular monitoring of waiting time metrics with targeted interventions for wards showing the greatest delays",
       "Study practices in W6D that have helped maintain waiting times while other wards saw increases",
-      "Consider implementation of a real-time bed management system to improve allocation efficiency"
+      "Consider implementation of a real-time bed management system to improve allocation efficiency",
+      "Develop standard operating procedures for expedited transfer of patients during high occupancy periods"
     ]
   }
 }
