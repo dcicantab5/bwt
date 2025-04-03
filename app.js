@@ -1,4 +1,4 @@
-// Main application script for Bed Waiting Time Analysis Dashboard
+// Main application script for Bed Waiting Time Distribution Dashboard
 document.addEventListener('DOMContentLoaded', function() {
   // Load data
   fetch('data.json')
@@ -25,20 +25,23 @@ function initializeDashboard(data) {
   // Set metadata and update footer
   displayMetadata(data.metadata);
   
-  // Initialize Overview Tab
-  initializeOverviewTab(data);
-  
   // Initialize Histogram Tab
   initializeHistogramTab(data.statistics.histogram);
   
-  // Initialize Wards Tab
-  initializeWardsTab(data.statistics.byWard, data.summary);
+  // Initialize Density Plot Tab
+  initializeDensityTab(data.statistics.densityData);
   
-  // Initialize Threshold Tab
-  initializeThresholdTab(data.statistics.thresholds);
+  // Initialize Box Plot Tab
+  initializeBoxPlotTab(data.statistics.overall);
   
-  // Initialize Findings Tab
-  initializeFindingsTab(data.qualityImprovement);
+  // Initialize By Ward Tab
+  initializeByWardTab(data.statistics.byWard, data.summary);
+  
+  // Initialize Statistical Analysis Tab
+  initializeStatisticalTab(data.statistics.statAnalysis, data.statistics.overall, data.statistics.thresholds);
+  
+  // Set global observations
+  setGlobalObservations(data.keyObservations);
 }
 
 function displayMetadata(metadata) {
@@ -52,214 +55,25 @@ function displayMetadata(metadata) {
   document.getElementById('footerDate').textContent = formattedDate;
 }
 
-function initializeOverviewTab(data) {
-  // Set key metrics in overview tab
-  document.getElementById('median2024').textContent = data.statistics.overall.stats2024.median;
-  document.getElementById('median2025').textContent = data.statistics.overall.stats2025.median;
-  document.getElementById('count2024').textContent = data.summary.totalPatients2024;
-  document.getElementById('count2025').textContent = data.summary.totalPatients2025;
-  
-  document.getElementById('medianChange').textContent = '+' + data.statistics.overall.comparison.medianChange;
-  document.getElementById('meanChange').textContent = '+' + data.statistics.overall.comparison.meanChange.toFixed(1);
-  
-  // Get the 4-hour and 24-hour threshold data
-  const fourHourThreshold = data.statistics.thresholds.find(t => t.threshold === '4 hours');
-  document.getElementById('fourHourChange').textContent = fourHourThreshold.percentagePointChange + '%';
-  
-  const twentyFourHourThreshold = data.statistics.thresholds.find(t => t.threshold === '24 hours');
-  document.getElementById('twentyFourHourChange').textContent = '+' + Math.abs(twentyFourHourThreshold.percentagePointChange) + '%';
-  
-  // Create summary statistics table
-  const statsTable = document.getElementById('statsTable');
-  const stats2024 = data.statistics.overall.stats2024;
-  const stats2025 = data.statistics.overall.stats2025;
-  
-  // Add rows to the table
-  addStatRow(statsTable, 'Median (minutes)', stats2024.median, stats2025.median);
-  addStatRow(statsTable, 'Mean (minutes)', stats2024.mean.toFixed(1), stats2025.mean.toFixed(1));
-  addStatRow(statsTable, 'Q1 - 25th percentile', stats2024.q1, stats2025.q1);
-  addStatRow(statsTable, 'Q3 - 75th percentile', stats2024.q3, stats2025.q3);
-  addStatRow(statsTable, 'IQR', stats2024.iqr, stats2025.iqr);
-  addStatRow(statsTable, 'Standard Deviation', stats2024.stdDev.toFixed(1), stats2025.stdDev.toFixed(1));
-  addStatRow(statsTable, 'Minimum', stats2024.min, stats2025.min);
-  addStatRow(statsTable, 'Maximum', stats2024.max, stats2025.max);
-  
-  // Create summary charts
-  createSummaryDoughnutChart('summary2024Chart', data.summary.wardCounts2024, '2024');
-  createSummaryDoughnutChart('summary2025Chart', data.summary.wardCounts2025, '2025');
-  
-  // Create patient distribution charts
-  createPatientDistributionChart('patientDistribution2024Chart', data.summary.wardCounts2024, '2024');
-  createPatientDistributionChart('patientDistribution2025Chart', data.summary.wardCounts2025, '2025');
-}
-
-function addStatRow(table, label, value2024, value2025) {
-  const row = document.createElement('tr');
-  const change = value2025 - value2024;
-  const percentChange = (value2024 != 0) ? ((change / value2024) * 100).toFixed(1) : 'N/A';
-  
-  row.innerHTML = `
-    <td>${label}</td>
-    <td>${value2024}</td>
-    <td>${value2025}</td>
-    <td>${change > 0 ? '+' : ''}${change}</td>
-    <td>${percentChange != 'N/A' ? (percentChange > 0 ? '+' : '') + percentChange + '%' : 'N/A'}</td>
-  `;
-  
-  table.appendChild(row);
-}
-
-function createSummaryDoughnutChart(canvasId, wardCounts, year) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  
-  // Define colors for each ward
-  const colors = {
-    W6A: 'rgba(54, 162, 235, 0.8)',
-    W6B: 'rgba(75, 192, 192, 0.8)',
-    W6C: 'rgba(255, 206, 86, 0.8)',
-    W6D: 'rgba(255, 99, 132, 0.8)'
-  };
-  
-  // Calculate total for percentages
-  const total = Object.values(wardCounts).reduce((sum, count) => sum + count, 0);
-  
-  // Prepare data
-  const labels = Object.keys(wardCounts);
-  const data = Object.values(wardCounts);
-  const percentages = data.map(count => ((count / total) * 100).toFixed(1));
-  
-  // Create chart
-  new Chart(ctx, {
-    type: 'doughnut',
-    data: {
-      labels: labels.map((ward, i) => `${ward}: ${percentages[i]}%`),
-      datasets: [{
-        data: data,
-        backgroundColor: labels.map(ward => colors[ward]),
-        borderColor: 'white',
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'bottom',
-          labels: {
-            font: {
-              size: 12
-            }
-          }
-        },
-        title: {
-          display: true,
-          text: `Patient Distribution ${year}`,
-          font: {
-            size: 16
-          }
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.label || '';
-              const value = context.raw;
-              const percentage = ((value / total) * 100).toFixed(1);
-              return `${label.split(':')[0]}: ${value} patients (${percentage}%)`;
-            }
-          }
-        }
-      }
-    }
-  });
-}
-
-function createPatientDistributionChart(canvasId, wardCounts, year) {
-  const ctx = document.getElementById(canvasId).getContext('2d');
-  
-  // Define colors for each ward
-  const colors = {
-    W6A: 'rgba(54, 162, 235, 0.8)',
-    W6B: 'rgba(75, 192, 192, 0.8)',
-    W6C: 'rgba(255, 206, 86, 0.8)',
-    W6D: 'rgba(255, 99, 132, 0.8)'
-  };
-  
-  // Prepare data
-  const labels = Object.keys(wardCounts);
-  const data = Object.values(wardCounts);
-  
-  // Create chart
-  new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: labels,
-      datasets: [{
-        label: `Patients ${year}`,
-        data: data,
-        backgroundColor: labels.map(ward => colors[ward]),
-        borderColor: labels.map(ward => colors[ward].replace('0.8', '1')),
-        borderWidth: 1
-      }]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          display: false
-        },
-        title: {
-          display: true,
-          text: `Patient Count by Ward ${year}`,
-          font: {
-            size: 16
-          }
-        }
-      },
-      scales: {
-        y: {
-          beginAtZero: true,
-          title: {
-            display: true,
-            text: 'Number of Patients'
-          }
-        },
-        x: {
-          title: {
-            display: true,
-            text: 'Ward'
-          }
-        }
-      }
-    }
-  });
-}
-
 function initializeHistogramTab(histogramData) {
-  // Create histogram chart for percentages
+  // Create histogram charts
   createHistogramChart('histogramPercentChart', histogramData, 'percent');
-  
-  // Create histogram chart for counts
   createHistogramChart('histogramCountChart', histogramData, 'count');
   
-  // Create histogram data table
-  const histogramTable = document.getElementById('histogramTable');
+  // Set histogram observations
+  const histogramObservations = document.getElementById('histogramObservations');
+  const observations = [
+    "The proportion of patients with waits under 4 hours decreased dramatically from 45.5% in 2024 to only 19.0% in 2025.",
+    "In 2024, the majority of patients (70.6%) waited less than 8 hours, compared to only 39.3% in 2025.",
+    "The proportion of patients waiting 16-24 hours increased from 4.9% in 2024 to 17.6% in 2025.",
+    "The percentage of patients with extremely long waits (over 24 hours) increased from 4.4% in 2024 to 24.6% in 2025.",
+    "The 2024 distribution is heavily skewed toward shorter waiting times, while the 2025 distribution is more spread out across all time intervals."
+  ];
   
-  histogramData.forEach(bin => {
-    const row = document.createElement('tr');
-    const percentChange = bin.percent2025 - bin.percent2024;
-    
-    row.innerHTML = `
-      <td>${bin.bin}</td>
-      <td>${bin.count2024}</td>
-      <td>${bin.percent2024}%</td>
-      <td>${bin.count2025}</td>
-      <td>${bin.percent2025}%</td>
-      <td class="${percentChange > 0 ? 'text-success' : 'text-danger'}">${percentChange > 0 ? '+' : ''}${percentChange.toFixed(1)}%</td>
-    `;
-    
-    histogramTable.appendChild(row);
+  observations.forEach(obs => {
+    const li = document.createElement('li');
+    li.textContent = obs;
+    histogramObservations.appendChild(li);
   });
 }
 
@@ -280,15 +94,15 @@ function createHistogramChart(canvasId, histogramData, type) {
         {
           label: 'Feb 2024',
           data: data2024,
-          backgroundColor: 'rgba(54, 162, 235, 0.7)',
-          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(88, 103, 221, 0.7)',
+          borderColor: 'rgba(88, 103, 221, 1)',
           borderWidth: 1
         },
         {
           label: 'Feb 2025',
           data: data2025,
-          backgroundColor: 'rgba(255, 99, 132, 0.7)',
-          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(121, 204, 160, 0.7)',
+          borderColor: 'rgba(121, 204, 160, 1)',
           borderWidth: 1
         }
       ]
@@ -296,32 +110,48 @@ function createHistogramChart(canvasId, histogramData, type) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              const label = context.dataset.label || '';
-              const value = context.raw;
-              return `${label}: ${value}${type === 'percent' ? '%' : ''}`;
-            }
-          }
-        }
-      },
       scales: {
         y: {
           beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
+          ticks: {
+            callback: function(value) {
+              return type === 'percent' ? value + '%' : value;
+            }
+          },
           title: {
             display: true,
             text: type === 'percent' ? 'Percentage of Cases (%)' : 'Number of Cases'
           }
         },
         x: {
+          grid: {
+            display: false
+          },
           title: {
             display: true,
             text: 'Waiting Time Range'
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+            pointStyle: 'rect'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              const label = context.dataset.label || '';
+              const value = context.parsed.y;
+              return `${label}: ${value}${type === 'percent' ? '%' : ''}`;
+            }
           }
         }
       }
@@ -329,85 +159,255 @@ function createHistogramChart(canvasId, histogramData, type) {
   });
 }
 
-function initializeWardsTab(wardData, summaryData) {
-  // Create ward comparison charts
-  createWardComparisonChart('wardMedianChart', wardData, 'median', 'Median Waiting Time by Ward');
-  createWardComparisonChart('wardMeanChart', wardData, 'mean', 'Mean Waiting Time by Ward');
+function initializeDensityTab(densityData) {
+  // Create density plot
+  createDensityChart('densityChart', densityData);
   
-  // Create ward statistics table
-  const wardStatsTable = document.getElementById('wardStatsTable');
-  const wards = Object.keys(wardData);
+  // Set density plot observations
+  const densityObservations = document.getElementById('densityObservations');
+  const observations = [
+    "The 2024 distribution has a single peak at around 4 hours, showing most patients were seen relatively quickly.",
+    "The 2025 distribution is much flatter with less pronounced peaks, indicating greater variability in waiting times.",
+    "In 2024, the density drops sharply after 8 hours, while in 2025 it remains substantial even beyond 24 hours.",
+    "The 2025 distribution shows a secondary peak around 16-18 hours, suggesting a potential bottleneck in the system at this duration.",
+    "The area under the curve past 24 hours (1440 minutes) is significantly larger in 2025, confirming the increase in extended waits."
+  ];
   
-  wards.forEach(ward => {
-    const medianChange = wardData[ward].stats2025.median - wardData[ward].stats2024.median;
-    const percentChange = ((medianChange / wardData[ward].stats2024.median) * 100).toFixed(1);
-    
-    const row = document.createElement('tr');
-    row.innerHTML = `
-      <td>${ward}</td>
-      <td>${wardData[ward].count2024}</td>
-      <td>${wardData[ward].count2025}</td>
-      <td>${wardData[ward].stats2024.median}</td>
-      <td>${wardData[ward].stats2025.median}</td>
-      <td class="${medianChange > 0 ? 'text-danger' : 'text-success'}">${medianChange > 0 ? '+' : ''}${percentChange}%</td>
-    `;
-    
-    wardStatsTable.appendChild(row);
+  observations.forEach(obs => {
+    const li = document.createElement('li');
+    li.textContent = obs;
+    densityObservations.appendChild(li);
   });
-  
-  // Create ward observations
-  const wardObservations = document.getElementById('wardObservations');
-  
-  // Find ward with largest increase
-  let maxIncreaseWard = wards[0];
-  let maxIncreasePercent = 0;
-  
-  wards.forEach(ward => {
-    const medianChange = wardData[ward].stats2025.median - wardData[ward].stats2024.median;
-    const percentChange = (medianChange / wardData[ward].stats2024.median) * 100;
-    
-    if (percentChange > maxIncreasePercent) {
-      maxIncreasePercent = percentChange;
-      maxIncreaseWard = ward;
-    }
-  });
-  
-  // Find ward with smallest increase or decrease
-  let minChangeWard = wards[0];
-  let minChangePercent = (wardData[wards[0]].stats2025.median - wardData[wards[0]].stats2024.median) / wardData[wards[0]].stats2024.median * 100;
-  
-  wards.forEach(ward => {
-    const medianChange = wardData[ward].stats2025.median - wardData[ward].stats2024.median;
-    const percentChange = (medianChange / wardData[ward].stats2024.median) * 100;
-    
-    if (Math.abs(percentChange) < Math.abs(minChangePercent)) {
-      minChangePercent = percentChange;
-      minChangeWard = ward;
-    }
-  });
-  
-  // Add observations
-  addObservation(wardObservations, `Ward ${maxIncreaseWard} shows the largest increase in median waiting time (${maxIncreasePercent.toFixed(1)}%).`);
-  
-  if (minChangePercent < 0) {
-    addObservation(wardObservations, `Ward ${minChangeWard} is the only ward showing a decrease in median waiting time (${minChangePercent.toFixed(1)}%).`);
-  } else {
-    addObservation(wardObservations, `Ward ${minChangeWard} shows the smallest increase in median waiting time (${minChangePercent.toFixed(1)}%).`);
-  }
-  
-  // Add additional observations
-  addObservation(wardObservations, `In 2024, the highest median wait was in Ward W6D (${wardData.W6D.stats2024.median} minutes).`);
-  addObservation(wardObservations, `In 2025, the highest median wait is in Ward W6A (${wardData.W6A.stats2025.median} minutes).`);
-  
-  // Add note about patient distribution changes
-  const w6dChangePercent = ((wardData.W6D.count2025 - wardData.W6D.count2024) / wardData.W6D.count2024 * 100).toFixed(0);
-  addObservation(wardObservations, `Ward W6D saw a significant increase in patient volume (${w6dChangePercent}% more patients in 2025).`);
 }
 
-function addObservation(element, text) {
-  const observation = document.createElement('li');
-  observation.textContent = text;
-  element.appendChild(observation);
+function createDensityChart(canvasId, densityData) {
+  const ctx = document.getElementById(canvasId).getContext('2d');
+  
+  // Prepare data
+  const labels = densityData.map(point => point.duration);
+  const data2024 = densityData.map(point => point.density2024);
+  const data2025 = densityData.map(point => point.density2025);
+  
+  // Create chart
+  new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: labels,
+      datasets: [
+        {
+          label: 'Feb 2024',
+          data: data2024,
+          borderColor: 'rgba(88, 103, 221, 1)',
+          backgroundColor: 'rgba(88, 103, 221, 0.1)',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.4,
+          fill: true
+        },
+        {
+          label: 'Feb 2025',
+          data: data2025,
+          borderColor: 'rgba(121, 204, 160, 1)',
+          backgroundColor: 'rgba(121, 204, 160, 0.1)',
+          borderWidth: 2,
+          pointRadius: 0,
+          tension: 0.4,
+          fill: true
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      scales: {
+        y: {
+          beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
+          title: {
+            display: true,
+            text: 'Density'
+          }
+        },
+        x: {
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
+          title: {
+            display: true,
+            text: 'Duration (minutes)'
+          },
+          ticks: {
+            callback: function(value) {
+              return `${Math.floor(value/60)}h`;
+            },
+            maxRotation: 0
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+            pointStyle: 'rect'
+          }
+        },
+        tooltip: {
+          callbacks: {
+            title: function(context) {
+              const value = context[0].raw;
+              const minutes = context[0].label;
+              return `${Math.floor(minutes/60)}h ${minutes%60}m`;
+            }
+          }
+        }
+      }
+    }
+  });
+}
+
+function initializeBoxPlotTab(overallData) {
+  // Create box plots
+  createBoxPlot('boxPlot2024', overallData.stats2024);
+  createBoxPlot('boxPlot2025', overallData.stats2025);
+  
+  // Create key statistics table
+  const keyStatsTable = document.getElementById('keyStatsTable');
+  
+  // Add rows to the table
+  addStatRow(keyStatsTable, 'Median', overallData.stats2024.median, overallData.stats2025.median, overallData.comparison.medianChange, overallData.comparison.medianChangePercent);
+  addStatRow(keyStatsTable, 'Mean', overallData.stats2024.mean, overallData.stats2025.mean, overallData.comparison.meanChange, overallData.comparison.meanChangePercent);
+  addStatRow(keyStatsTable, 'Q1 (25th percentile)', overallData.stats2024.q1, overallData.stats2025.q1, overallData.comparison.q1Change, overallData.comparison.q1ChangePercent);
+  addStatRow(keyStatsTable, 'Q3 (75th percentile)', overallData.stats2024.q3, overallData.stats2025.q3, overallData.comparison.q3Change, overallData.comparison.q3ChangePercent);
+  addStatRow(keyStatsTable, 'IQR (Q3-Q1)', overallData.stats2024.iqr, overallData.stats2025.iqr, overallData.comparison.iqrChange, overallData.comparison.iqrChangePercent);
+  
+  // Set box plot observations
+  const boxPlotObservations = document.getElementById('boxPlotObservations');
+  const observations = [
+    "Median waiting time increased from 271 minutes in 2024 to 765 minutes in 2025, a 182.3% increase.",
+    "The interquartile range (IQR) widened substantially from 372 minutes in 2024 to 1124 minutes in 2025, indicating much greater variability in 2025.",
+    "The 75th percentile (Q3) increased by 167.4%, from 534 minutes to 1428 minutes, showing a dramatic shift in the upper range of waiting times.",
+    "Even the 25th percentile (Q1) increased by 87.7%, from 162 minutes to 304 minutes, indicating that even the quicker admissions took longer in 2025.",
+    "The position of the mean relative to the median in both years suggests a right-skewed distribution, with some extremely long waits pulling the mean higher than the median."
+  ];
+  
+  observations.forEach(obs => {
+    const li = document.createElement('li');
+    li.textContent = obs;
+    boxPlotObservations.appendChild(li);
+  });
+}
+
+function createBoxPlot(containerId, stats) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  
+  // Calculate the positions relative to the container width
+  const maxVal = 5000; // We'll cap at 5000 for better visibility
+  const minPos = (stats.min / maxVal) * 100;
+  const q1Pos = (stats.q1 / maxVal) * 100;
+  const medianPos = (stats.median / maxVal) * 100;
+  const q3Pos = (stats.q3 / maxVal) * 100;
+  const maxPos = Math.min((stats.max / maxVal) * 100, 100);
+  const meanPos = Math.min((stats.mean / maxVal) * 100, 100);
+  
+  // Create the elements
+  const axis = document.createElement('div');
+  axis.className = 'box-plot-axis';
+  container.appendChild(axis);
+  
+  const box = document.createElement('div');
+  box.className = 'box-plot-box';
+  box.style.left = q1Pos + '%';
+  box.style.width = (q3Pos - q1Pos) + '%';
+  container.appendChild(box);
+  
+  const median = document.createElement('div');
+  median.className = 'box-plot-median';
+  median.style.left = medianPos + '%';
+  container.appendChild(median);
+  
+  const minWhisker = document.createElement('div');
+  minWhisker.className = 'box-plot-whisker';
+  minWhisker.style.left = minPos + '%';
+  container.appendChild(minWhisker);
+  
+  const maxWhisker = document.createElement('div');
+  maxWhisker.className = 'box-plot-whisker';
+  maxWhisker.style.left = maxPos + '%';
+  container.appendChild(maxWhisker);
+  
+  const mean = document.createElement('div');
+  mean.className = 'box-plot-mean';
+  mean.style.left = meanPos + '%';
+  container.appendChild(mean);
+  
+  // Add labels
+  const labels = [
+    { pos: minPos, text: 'Min: ' + stats.min },
+    { pos: q1Pos, text: 'Q1: ' + stats.q1 },
+    { pos: medianPos, text: 'Median: ' + stats.median },
+    { pos: q3Pos, text: 'Q3: ' + stats.q3 },
+    { pos: maxPos, text: 'Max: ' + (stats.max > maxVal ? maxVal + '+' : stats.max) }
+  ];
+  
+  labels.forEach(label => {
+    const element = document.createElement('div');
+    element.className = 'box-plot-label';
+    element.style.left = label.pos + '%';
+    element.textContent = label.text;
+    container.appendChild(element);
+  });
+  
+  // Add mean label below box
+  const meanLabel = document.createElement('div');
+  meanLabel.style.position = 'absolute';
+  meanLabel.style.top = '110px';
+  meanLabel.style.width = '100%';
+  meanLabel.style.textAlign = 'center';
+  meanLabel.innerHTML = '<span style="display: inline-flex; align-items: center;"><span style="display: inline-block; width: 10px; height: 10px; background-color: #dc3545; border-radius: 50%; margin-right: 5px;"></span>Mean: ' + stats.mean + '</span>';
+  container.appendChild(meanLabel);
+}
+
+function addStatRow(table, label, value2024, value2025, change, percentChange) {
+  const row = document.createElement('tr');
+  
+  row.innerHTML = `
+    <td class="fw-bold">${label}</td>
+    <td>${value2024}</td>
+    <td>${value2025}</td>
+    <td>${change}</td>
+    <td>${percentChange}%</td>
+  `;
+  
+  table.appendChild(row);
+}
+
+function initializeByWardTab(wardData, summaryData) {
+  // Create ward comparison charts
+  createWardComparisonChart('wardMeanChart', wardData, 'mean', 'Mean Waiting Time by Ward');
+  createWardComparisonChart('wardMedianChart', wardData, 'median', 'Median Waiting Time by Ward');
+  createWardCasesChart('wardCasesChart', summaryData);
+  
+  // Set ward observations
+  const byWardObservations = document.getElementById('byWardObservations');
+  const observations = [
+    "All wards except W6D show substantial increases in median waiting times from 2024 to 2025.",
+    "W6B had the most dramatic increase in median waiting time, from 207 minutes in 2024 to 895 minutes in 2025 (332% increase).",
+    "W6A's median waiting time increased from 345 minutes in 2024 to 940 minutes in 2025 (172% increase).",
+    "W6D is the only ward that showed improvement, with median waiting time decreasing from 479 minutes in 2024 to 452 minutes in 2025 (5.6% decrease).",
+    "W6D saw a significant increase in patient volume, from 60 patients in 2024 to 195 in 2025, which may have affected its performance.",
+    "W6B had the shortest median waiting time in 2024 (207 minutes) but the second longest in 2025 (895 minutes)."
+  ];
+  
+  observations.forEach(obs => {
+    const li = document.createElement('li');
+    li.textContent = obs;
+    byWardObservations.appendChild(li);
+  });
 }
 
 function createWardComparisonChart(canvasId, wardData, metric, title) {
@@ -427,15 +427,15 @@ function createWardComparisonChart(canvasId, wardData, metric, title) {
         {
           label: 'Feb 2024',
           data: data2024,
-          backgroundColor: 'rgba(54, 162, 235, 0.7)',
-          borderColor: 'rgba(54, 162, 235, 1)',
+          backgroundColor: 'rgba(88, 103, 221, 0.7)',
+          borderColor: 'rgba(88, 103, 221, 1)',
           borderWidth: 1
         },
         {
           label: 'Feb 2025',
           data: data2025,
-          backgroundColor: 'rgba(255, 99, 132, 0.7)',
-          borderColor: 'rgba(255, 99, 132, 1)',
+          backgroundColor: 'rgba(121, 204, 160, 0.7)',
+          borderColor: 'rgba(121, 204, 160, 1)',
           borderWidth: 1
         }
       ]
@@ -443,86 +443,67 @@ function createWardComparisonChart(canvasId, wardData, metric, title) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        },
-        title: {
-          display: true,
-          text: title,
-          font: {
-            size: 16
-          }
-        }
-      },
       scales: {
         y: {
           beginAtZero: true,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
           title: {
             display: true,
-            text: 'Minutes'
+            text: metric === 'mean' ? 'Mean Duration (minutes)' : 'Median Duration (minutes)'
           }
         },
         x: {
-          title: {
-            display: true,
-            text: 'Ward'
+          grid: {
+            display: false
           }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+            pointStyle: 'rect'
+          }
+        },
+        title: {
+          display: false,
+          text: title
         }
       }
     }
   });
 }
 
-function initializeThresholdTab(thresholdData) {
-  // Create threshold compliance chart
-  createThresholdChart('thresholdComplianceChart', thresholdData);
-  
-  // Create threshold table
-  const thresholdTable = document.getElementById('thresholdTable');
-  
-  thresholdData.forEach(threshold => {
-    const row = document.createElement('tr');
-    
-    row.innerHTML = `
-      <td>${threshold.threshold} (${threshold.minutes} min)</td>
-      <td>${threshold.within2024.percent}%</td>
-      <td>${threshold.within2025.percent}%</td>
-      <td class="text-danger">${threshold.percentagePointChange}%</td>
-      <td>${threshold.exceeding2024.percent}%</td>
-      <td>${threshold.exceeding2025.percent}%</td>
-    `;
-    
-    thresholdTable.appendChild(row);
-  });
-}
-
-function createThresholdChart(canvasId, thresholdData) {
+function createWardCasesChart(canvasId, summaryData) {
   const ctx = document.getElementById(canvasId).getContext('2d');
   
   // Prepare data
-  const labels = thresholdData.map(t => t.threshold);
-  const within2024 = thresholdData.map(t => t.within2024.percent);
-  const within2025 = thresholdData.map(t => t.within2025.percent);
+  const wards = Object.keys(summaryData.wardCounts2024);
+  const data2024 = wards.map(ward => summaryData.wardCounts2024[ward]);
+  const data2025 = wards.map(ward => summaryData.wardCounts2025[ward]);
   
   // Create chart
   new Chart(ctx, {
     type: 'bar',
     data: {
-      labels: labels,
+      labels: wards,
       datasets: [
         {
-          label: '% Within Standard (2024)',
-          data: within2024,
-          backgroundColor: 'rgba(54, 162, 235, 0.7)',
-          borderColor: 'rgba(54, 162, 235, 1)',
+          label: 'Feb 2024',
+          data: data2024,
+          backgroundColor: 'rgba(88, 103, 221, 0.7)',
+          borderColor: 'rgba(88, 103, 221, 1)',
           borderWidth: 1
         },
         {
-          label: '% Within Standard (2025)',
-          data: within2025,
-          backgroundColor: 'rgba(255, 99, 132, 0.7)',
-          borderColor: 'rgba(255, 99, 132, 1)',
+          label: 'Feb 2025',
+          data: data2025,
+          backgroundColor: 'rgba(121, 204, 160, 0.7)',
+          borderColor: 'rgba(121, 204, 160, 1)',
           borderWidth: 1
         }
       ]
@@ -530,24 +511,30 @@ function createThresholdChart(canvasId, thresholdData) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
-      plugins: {
-        legend: {
-          position: 'top',
-        }
-      },
       scales: {
         y: {
           beginAtZero: true,
-          max: 100,
+          grid: {
+            color: 'rgba(0, 0, 0, 0.05)'
+          },
           title: {
             display: true,
-            text: 'Percentage within Standard (%)'
+            text: 'Number of Cases'
           }
         },
         x: {
-          title: {
-            display: true,
-            text: 'Time Standard'
+          grid: {
+            display: false
+          }
+        }
+      },
+      plugins: {
+        legend: {
+          position: 'bottom',
+          labels: {
+            boxWidth: 12,
+            usePointStyle: true,
+            pointStyle: 'rect'
           }
         }
       }
@@ -555,20 +542,70 @@ function createThresholdChart(canvasId, thresholdData) {
   });
 }
 
-function initializeFindingsTab(qualityImprovement) {
-  // Populate key findings
-  const keyFindings = document.getElementById('keyFindings');
-  qualityImprovement.keyFindings.forEach(finding => {
-    const li = document.createElement('li');
-    li.textContent = finding;
-    keyFindings.appendChild(li);
-  });
+function initializeStatisticalTab(statData, overallData, thresholdData) {
+  // Populate Mann-Whitney test table
+  const mannWhitneyTable = document.getElementById('mannWhitneyTable');
   
-  // Populate recommendations
-  const recommendations = document.getElementById('recommendations');
-  qualityImprovement.recommendations.forEach(recommendation => {
+  addSimpleRow(mannWhitneyTable, 'U statistic', statData.mannWhitney.uStatistic);
+  addSimpleRow(mannWhitneyTable, 'Z score', statData.mannWhitney.zScore.toFixed(4));
+  addSimpleRow(mannWhitneyTable, 'p-value', `< ${statData.mannWhitney.pValue}`);
+  addSimpleRow(mannWhitneyTable, 'Median 2024', `${overallData.stats2024.median} minutes`);
+  addSimpleRow(mannWhitneyTable, 'Median 2025', `${overallData.stats2025.median} minutes`);
+  
+  // Populate Bootstrap table
+  const bootstrapTable = document.getElementById('bootstrapTable');
+  addSimpleRow(bootstrapTable, 'Observed difference (2025 - 2024)', `${statData.bootstrapMedian.observedDifference} minutes`);
+  addSimpleRow(bootstrapTable, '95% Confidence Interval', `[${statData.bootstrapMedian.ci95[0]}, ${statData.bootstrapMedian.ci95[1]}]`);
+  
+  // Populate 4-hour standard table
+  const fourHourTable = document.getElementById('fourHourTable');
+  const fourHourData = thresholdData.find(t => t.threshold === "4 hours");
+  
+  addSimpleRow(fourHourTable, 'Chi-square statistic', statData.chiSquare4Hour.statistic.toFixed(4));
+  addSimpleRow(fourHourTable, 'p-value', `< ${statData.chiSquare4Hour.pValue}`);
+  addSimpleRow(fourHourTable, 'Odds ratio', statData.chiSquare4Hour.oddsRatio.toFixed(2));
+  addSimpleRow(fourHourTable, '95% CI for odds ratio', `[${statData.chiSquare4Hour.ci95[0]}, ${statData.chiSquare4Hour.ci95[1]}]`);
+  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2024', `${fourHourData.within2024.percent}%`);
+  addSimpleRow(fourHourTable, 'Proportion meeting threshold 2025', `${fourHourData.within2025.percent}%`);
+  
+  // Populate 6-hour standard table
+  const sixHourTable = document.getElementById('sixHourTable');
+  const sixHourData = thresholdData.find(t => t.threshold === "6 hours");
+  
+  addSimpleRow(sixHourTable, 'Chi-square statistic', statData.chiSquare6Hour.statistic.toFixed(4));
+  addSimpleRow(sixHourTable, 'p-value', `< ${statData.chiSquare6Hour.pValue}`);
+  addSimpleRow(sixHourTable, 'Odds ratio', statData.chiSquare6Hour.oddsRatio.toFixed(2));
+  addSimpleRow(sixHourTable, '95% CI for odds ratio', `[${statData.chiSquare6Hour.ci95[0]}, ${statData.chiSquare6Hour.ci95[1]}]`);
+  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2024', `${sixHourData.within2024.percent}%`);
+  addSimpleRow(sixHourTable, 'Proportion meeting threshold 2025', `${sixHourData.within2025.percent}%`);
+  
+  // Populate extended waits table
+  const extendedWaitsTable = document.getElementById('extendedWaitsTable');
+  const twentyFourHourData = thresholdData.find(t => t.threshold === "24 hours");
+  
+  addSimpleRow(extendedWaitsTable, 'Chi-square statistic', statData.chiSquare24Hour.statistic.toFixed(4));
+  addSimpleRow(extendedWaitsTable, 'p-value', `< ${statData.chiSquare24Hour.pValue}`);
+  addSimpleRow(extendedWaitsTable, 'Odds ratio', statData.chiSquare24Hour.oddsRatio.toFixed(2));
+  addSimpleRow(extendedWaitsTable, '95% CI for odds ratio', `[${statData.chiSquare24Hour.ci95[0]}, ${statData.chiSquare24Hour.ci95[1]}]`);
+  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2024', `${twentyFourHourData.exceeding2024.percent}%`);
+  addSimpleRow(extendedWaitsTable, 'Proportion exceeding 24h 2025', `${twentyFourHourData.exceeding2025.percent}%`);
+}
+
+function addSimpleRow(table, label, value) {
+  const row = document.createElement('tr');
+  row.innerHTML = `
+    <td class="fw-bold">${label}</td>
+    <td>${value}</td>
+  `;
+  table.appendChild(row);
+}
+
+function setGlobalObservations(observations) {
+  const globalObservationsList = document.getElementById('globalObservationsList');
+  
+  observations.forEach(obs => {
     const li = document.createElement('li');
-    li.textContent = recommendation;
-    recommendations.appendChild(li);
+    li.textContent = obs;
+    globalObservationsList.appendChild(li);
   });
 }
